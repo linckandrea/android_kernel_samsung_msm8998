@@ -265,6 +265,87 @@ enum {
 	VMPRESSURE_ADJUST_NORMAL,
 };
 
+int adjust_minadj(short *min_score_adj)
+{
+	int ret = VMPRESSURE_NO_ADJUST;
+
+	if (!enable_adaptive_lmk)
+		return 0;
+
+	if (atomic_read(&shift_adj) &&
+	    (*min_score_adj > adj_max_shift)) {
+		if (*min_score_adj == OOM_SCORE_ADJ_MAX + 1)
+			ret = VMPRESSURE_ADJUST_ENCROACH;
+		else
+			ret = VMPRESSURE_ADJUST_NORMAL;
+		*min_score_adj = adj_max_shift;
+	}
+	atomic_set(&shift_adj, 0);
+
+	return ret;
+}
+
+static int lmk_vmpressure_notifier(struct notifier_block *nb,
+				   unsigned long action, void *data)
+{
+	int other_free = 0, other_file = 0;
+	unsigned long pressure = action;
+	int array_size = ARRAY_SIZE(lowmem_adj);
+
+	if (!enable_adaptive_lmk)
+		return 0;
+
+	if (pressure >= 95) {
+		other_file = global_page_state(NR_FILE_PAGES) + zcache_pages() -
+			global_page_state(NR_SHMEM) -
+			global_page_state(NR_UNEVICTABLE) -
+			total_swapcache_pages();
+		other_free = global_page_state(NR_FREE_PAGES);
+
+		atomic_set(&shift_adj, 1);
+		trace_almk_vmpressure(pressure, other_free, other_file);
+	} else if (pressure >= 90) {
+		if (lowmem_adj_size < array_size)
+			array_size = lowmem_adj_size;
+		if (lowmem_minfree_size < array_size)
+			array_size = lowmem_minfree_size;
+
+		other_file = global_page_state(NR_FILE_PAGES) + zcache_pages() -
+			global_page_state(NR_SHMEM) -
+			global_page_state(NR_UNEVICTABLE) -
+			total_swapcache_pages();
+
+		other_free = global_page_state(NR_FREE_PAGES);
+
+		if ((other_free < lowmem_minfree[array_size - 1]) &&
+		    (other_file < vmpressure_file_min)) {
+			atomic_set(&shift_adj, 1);
+			trace_almk_vmpressure(pressure, other_free, other_file);
+		}
+	} else if (atomic_read(&shift_adj)) {
+		other_file = global_page_state(NR_FILE_PAGES) + zcache_pages() -
+			global_page_state(NR_SHMEM) -
+			global_page_state(NR_UNEVICTABLE) -
+			total_swapcache_pages();
+		other_free = global_page_state(NR_FREE_PAGES);
+
+		/*
+		 * shift_adj would have been set by a previous invocation
+		 * of notifier, which is not followed by a lowmem_shrink yet.
+		 * Since vmpressure has improved, reset shift_adj to avoid
+		 * false adaptive LMK trigger.
+		 */
+		trace_almk_vmpressure(pressure, other_free, other_file);
+		atomic_set(&shift_adj, 0);
+	}
+
+	return 0;
+}
+
+static struct notifier_block lmk_vmpr_nb = {
+	.notifier_call = lmk_vmpressure_notifier,
+};
+
 static int test_task_flag(struct task_struct *p, int flag)
 {
 	struct task_struct *t;
@@ -569,6 +650,7 @@ static unsigned long lowmem_scan(struct shrinker *s, struct shrink_control *sc)
 		}
 
 		task_lock(selected);
+		get_task_struct(selected);
 		send_sig(SIGKILL, selected, 0);
 		/*
 		 * FIXME: lowmemorykiller shouldn't abuse global OOM killer
@@ -624,9 +706,7 @@ static unsigned long lowmem_scan(struct shrinker *s, struct shrink_control *sc)
 
 		lowmem_deathpending_timeout = jiffies + HZ;
 		rem += selected_tasksize;
-		get_task_struct(selected);
 		rcu_read_unlock();
-		lmk_count++;
 #ifdef CONFIG_SEC_DEBUG_LMK_MEMINFO
 		if (__ratelimit(&lmk_rs)) {
 			lowmem_print(1, "lowmem_shrink %lu, %x, ofree %d %d, ma %d\n",

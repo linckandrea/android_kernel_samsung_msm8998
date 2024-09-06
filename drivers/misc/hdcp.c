@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -2084,6 +2084,10 @@ static void hdcp_lib_clean(struct hdcp_lib_handle *handle)
 
 	handle->authenticated = false;
 
+	/* AV mute the sink first to avoid artifacts */
+	if (handle->client_ops->mute_sink)
+		handle->client_ops->mute_sink(handle->client_ctx);
+
 	hdcp_lib_txmtr_deinit(handle);
 	if (!handle->legacy_app)
 		hdcp_lib_session_deinit(handle);
@@ -2321,19 +2325,20 @@ bool hdcp1_check_if_supported_load_app(void)
 
 	/* start hdcp1 app */
 	if (hdcp1_supported && !hdcp1_handle->qsee_handle) {
+		mutex_init(&hdcp1_ta_cmd_lock);
 		rc = qseecom_start_app(&hdcp1_handle->qsee_handle,
 				HDCP1_APP_NAME,
 				QSEECOM_SBUFF_SIZE);
 		if (rc) {
 			pr_err("hdcp1 qseecom_start_app failed %d\n", rc);
 			hdcp1_supported = false;
+			hdcp1_srm_supported = false;
 			kfree(hdcp1_handle);
 		}
 	}
 
 	/* if hdcp1 app succeeds load SRM TA as well */
 	if (hdcp1_supported && !hdcp1_handle->srm_handle) {
-		mutex_init(&hdcp1_ta_cmd_lock);
 		rc = qseecom_start_app(&hdcp1_handle->srm_handle,
 				SRMAPP_NAME,
 				QSEECOM_SBUFF_SIZE);
@@ -2384,13 +2389,19 @@ int hdcp1_set_keys(uint32_t *aksv_msb, uint32_t *aksv_lsb)
 	if (aksv_msb == NULL || aksv_lsb == NULL)
 		return -EINVAL;
 
-	if (!hdcp1_supported || !hdcp1_handle)
-		return -EINVAL;
+	mutex_lock(&hdcp1_ta_cmd_lock);
+
+	if (!hdcp1_supported || !hdcp1_handle) {
+		rc = -EINVAL;
+		goto end;
+	}
 
 	hdcp1_qsee_handle = hdcp1_handle->qsee_handle;
 
-	if (!hdcp1_qsee_handle)
-		return -EINVAL;
+	if (!hdcp1_qsee_handle) {
+		rc = -EINVAL;
+		goto end;
+	}
 
 	mutex_lock(&hdcp1_ta_cmd_lock);
 
@@ -2408,15 +2419,15 @@ int hdcp1_set_keys(uint32_t *aksv_msb, uint32_t *aksv_lsb)
 
 	if (rc < 0) {
 		pr_err("qseecom cmd failed err=%d\n", rc);
-		mutex_unlock(&hdcp1_ta_cmd_lock);
-		return -ENOKEY;
+		rc = -ENOKEY;
+		goto end;
 	}
 
 	rc = key_set_rsp->ret;
 	if (rc) {
 		pr_err("set key cmd failed, rsp=%d\n", key_set_rsp->ret);
-		mutex_unlock(&hdcp1_ta_cmd_lock);
-		return -ENOKEY;
+		rc = -ENOKEY;
+		goto end;
 	}
 
 	/* copy bytes into msb and lsb */
@@ -2429,8 +2440,9 @@ int hdcp1_set_keys(uint32_t *aksv_msb, uint32_t *aksv_lsb)
 	*aksv_lsb |= key_set_rsp->ksv[6] << 8;
 	*aksv_lsb |= key_set_rsp->ksv[7];
 
+end:
 	mutex_unlock(&hdcp1_ta_cmd_lock);
-	return 0;
+	return rc;
 }
 
 int hdcp1_validate_receiver_ids(struct hdcp_srm_device_id_t *device_ids,
@@ -2570,8 +2582,10 @@ int hdcp1_set_enc(bool enable)
 
 	hdcp1_qsee_handle = hdcp1_handle->qsee_handle;
 
-	if (!hdcp1_qsee_handle)
-		return -EINVAL;
+	if (!hdcp1_qsee_handle) {
+		rc = -EINVAL;
+		goto end;
+	}
 
 	if (hdcp1_enc_enabled == enable) {
 		pr_info("already %s\n", enable ? "enabled" : "disabled");
