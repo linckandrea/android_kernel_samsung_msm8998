@@ -622,7 +622,7 @@ static int hfi_fill_codec_info(u8 *data_ptr,
 
 	if (prop_id ==  HFI_PROPERTY_PARAM_CODEC_SUPPORTED) {
 		struct hfi_codec_supported *prop;
-
+		
 		if (!validate_pkt_size(rem_size - sizeof(u32),
 				       sizeof(struct hfi_codec_supported)))
 			return -E2BIG;
@@ -671,6 +671,7 @@ static int hfi_fill_codec_info(u8 *data_ptr,
 					"Max supported sessions reached");
 				break;
 			}
+
 		}
 	}
 	sys_init_done->codec_count = codec_count;
@@ -845,6 +846,7 @@ static enum vidc_status hfi_parse_init_done_properties(
 {
 	enum vidc_status status = VIDC_ERR_NONE;
 	u32 prop_id, next_offset;
+	
 
 #define VALIDATE_PROPERTY_STRUCTURE_SIZE(pkt_size, property_size) ({\
 		if (pkt_size < property_size) { \
@@ -873,7 +875,6 @@ static enum vidc_status hfi_parse_init_done_properties(
 			struct hfi_codec_mask_supported *prop =
 				(struct hfi_codec_mask_supported *)
 				(data_ptr + next_offset);
-
 			VALIDATE_PROPERTY_STRUCTURE_SIZE(rem_bytes -
 					next_offset,
 					sizeof(*prop));
@@ -922,6 +923,7 @@ static enum vidc_status hfi_parse_init_done_properties(
 					next_offset,
 					sizeof(*prop));
 
+
 			num_format_entries = prop->format_entries;
 			next_offset = sizeof(*prop);
 			fmt_ptr = (char *)&prop->rg_format_info[0];
@@ -941,6 +943,7 @@ static enum vidc_status hfi_parse_init_done_properties(
 					plane_info->num_planes *
 					sizeof(struct
 					hfi_uncompressed_plane_constraints);
+					
 
 				VALIDATE_PROPERTY_STRUCTURE_SIZE(rem_bytes -
 						next_offset,
@@ -1117,6 +1120,7 @@ static enum vidc_status hfi_parse_init_done_properties(
 		} else {
 			rem_bytes = 0;
 		}
+
 	}
 
 	return status;
@@ -1137,12 +1141,12 @@ enum vidc_status hfi_process_sys_init_done_prop_read(
 			"hfi_msg_sys_init_done: Invalid input\n");
 		return VIDC_ERR_FAIL;
 	}
+
 	if (pkt->size < sizeof(struct hfi_msg_sys_init_done_packet)) {
 		dprintk(VIDC_ERR, "%s: bad_packet_size: %d\n",
 			__func__, pkt->size);
 		return VIDC_ERR_FAIL;
 	}
-
 	rem_bytes = pkt->size - sizeof(struct
 			hfi_msg_sys_init_done_packet) + sizeof(u32);
 

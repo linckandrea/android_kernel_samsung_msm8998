@@ -25,15 +25,8 @@
 #define ISP_STATS_STREAM_BIT  0x80000000
 
 #define VFE_HW_LIMIT 1
-#define ISP_KERNEL_STATE 1
 
 struct msm_vfe_cfg_cmd_list;
-
-struct isp_kstate {
-	uint32_t kernel_sofid;
-	uint32_t drop_reconfig;
-	uint32_t vfeid;
-};
 
 enum ISP_START_PIXEL_PATTERN {
 	ISP_BAYER_RGRGRG,
@@ -750,6 +743,7 @@ enum msm_vfe_error_type {
 	ISP_ERROR_NONE,
 	ISP_ERROR_CAMIF,
 	ISP_ERROR_BUS_OVERFLOW,
+	ISP_ERROR_ISPIF_OVERFLOW,
 	ISP_ERROR_RETURN_EMPTY_BUFFER,
 	ISP_ERROR_FRAME_ID_MISMATCH,
 	ISP_ERROR_MAX,

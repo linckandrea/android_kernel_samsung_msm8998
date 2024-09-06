@@ -35,6 +35,9 @@
 #include <linux/ulpi/interface.h>
 
 #include <linux/phy/phy.h>
+#ifdef CONFIG_USB_CHARGING_EVENT
+#include "../../battery_v2/include/sec_charging_common.h"
+#endif
 
 #define DWC3_MSG_MAX	500
 
@@ -990,6 +993,7 @@ struct dwc3 {
 	unsigned		is_fpga:1;
 	unsigned		needs_fifo_resize:1;
 	unsigned		pullups_connected:1;
+	unsigned		resize_fifos:1;
 	unsigned		setup_packet_pending:1;
 	unsigned		three_stage_setup:1;
 	unsigned		usb3_lpm_capable:1;
@@ -1052,6 +1056,12 @@ struct dwc3 {
 	wait_queue_head_t	wait_linkstate;
 	bool			create_reg_debugfs;
 	int			last_fifo_depth;
+
+#if IS_ENABLED(CONFIG_USB_CHARGING_EVENT)
+	struct work_struct      set_vbus_current_work;
+	int			vbus_current; /* 0 : 100mA, 1 : 500mA, 2: 900mA */
+#endif
+
 };
 
 /* -------------------------------------------------------------------------- */
