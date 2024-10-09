@@ -227,7 +227,7 @@ int rkp_assign_mem_to_hyp(phys_addr_t addr, size_t size)
 }
 #endif 
 
-static __init void alloc_init_pte(pmd_t *pmd, unsigned long addr,
+static void alloc_init_pte(pmd_t *pmd, unsigned long addr,
 				  unsigned long end, unsigned long pfn,
 				  pgprot_t prot,
 				  phys_addr_t (*pgtable_alloc)(void))
