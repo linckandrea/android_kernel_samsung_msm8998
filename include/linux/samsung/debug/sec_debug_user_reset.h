@@ -30,8 +30,12 @@ extern char *sec_debug_get_reset_reason_str(unsigned int reason);
 /* called @ drivers/misc/samsung/sec_hw_param.c */
 extern struct debug_reset_header *get_debug_reset_header(void);
 
+#ifdef CONFIG_SEC_DEBUG_SUMMARY
 /* FIXME: this function is not referenced anywhere */
 extern void __deprecated sec_debug_summary_modem_print(void);
+#else
+static inline void __deprecated sec_debug_summary_modem_print(void) { }
+#endif
 
 extern rst_exinfo_t *sec_debug_reset_ex_info;
 

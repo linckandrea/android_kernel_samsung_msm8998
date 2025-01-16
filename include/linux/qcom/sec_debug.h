@@ -711,7 +711,11 @@ extern void sec_debug_store_extc_idx(bool prefix);
 extern void sec_debug_store_bug_string(const char *fmt, ...);
 extern void sec_debug_store_additional_dbg(enum extra_info_dbg_type type, unsigned int value, const char *fmt, ...);
 extern struct debug_reset_header *get_debug_reset_header(void);
+#ifdef CONFIG_SEC_DEBUG_SUMMARY
 extern void sec_debug_summary_modem_print(void);
+#else
+static inline void sec_debug_summary_modem_print(void) { }
+#endif
 
 static inline void sec_debug_store_pte(unsigned long addr, int idx)
 {
