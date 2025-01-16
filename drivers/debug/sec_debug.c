@@ -2118,6 +2118,7 @@ static const struct file_operations sec_store_lastkmsg_proc_fops = {
 	.release = single_release,
 };
 
+#ifdef CONFIG_SEC_DEBUG_SUMMARY
 static void sec_restore_modem_reset_data(void)
 {
 	void *p_modem = sec_debug_summary_get_modem();
@@ -2156,6 +2157,7 @@ void sec_debug_summary_modem_print(void)
 		0x190, 1);
 }
 EXPORT_SYMBOL(sec_debug_summary_modem_print);
+#endif
 
 static int sec_reset_reason_dbg_part_notifier_callback(
 		struct notifier_block *nfb, unsigned long action, void *data)
@@ -2171,7 +2173,9 @@ static int sec_reset_reason_dbg_part_notifier_callback(
 
 			sec_debug_update_reset_reason(p_health->last_rst_reason);
 			rr_data = sec_debug_get_reset_reason();
+#ifdef CONFIG_SEC_DEBUG_SUMMARY
 			sec_restore_modem_reset_data();
+#endif
 			break;
 		default:
 			return NOTIFY_DONE;
