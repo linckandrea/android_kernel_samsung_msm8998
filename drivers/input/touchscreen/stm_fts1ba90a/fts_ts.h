@@ -19,6 +19,10 @@
 #define TCLM_CONCEPT
 #endif
 
+#ifdef CONFIG_DRM
+#include <linux/notifier.h>
+#endif
+
 #define USE_POR_AFTER_I2C_RETRY
 
 #define BRUSH_Z_DATA			63 /* for ArtCanvas */
@@ -394,6 +398,10 @@ struct fts_ts_test_result {
 		u8 data[1];
 	};
 };
+
+#if defined(CONFIG_DRM)
+	struct notifier_block dsi_panel_notif;
+#endif
 
 #define TEST_OCTA_MODULE	1
 #define TEST_OCTA_ASSAY		2
