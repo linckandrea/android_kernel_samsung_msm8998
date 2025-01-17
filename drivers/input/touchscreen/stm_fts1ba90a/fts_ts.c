@@ -63,6 +63,10 @@
 #include <soc/qcom/scm.h>
 /*#include <asm/system.h>*/
 
+#if defined(CONFIG_DRM)
+#include <linux/msm_drm_notify.h>
+#endif
+
 enum subsystem {
 	TZ = 1,
 	APSS = 3
@@ -119,6 +123,31 @@ struct delayed_work *p_debug_work;
 #if (!defined(CONFIG_PM)) && !defined(USE_OPEN_CLOSE)
 static int fts_suspend(struct i2c_client *client, pm_message_t mesg);
 static int fts_resume(struct i2c_client *client);
+#endif
+
+#if defined(CONFIG_DRM)
+static int dsi_panel_notifier_callback(struct notifier_block *self,
+				 unsigned long event, void *data)
+{
+	int blank;
+	struct msm_drm_notifier *evdata = data;
+	struct fts_ts_info *info =
+		container_of(self, struct fts_ts_info, dsi_panel_notif);
+
+	if (!evdata || !evdata->data || evdata->id != 0)
+		return 0;
+
+	blank = *(int *)(evdata->data);
+	if (event == MSM_DRM_EARLY_EVENT_BLANK) {
+		if (blank == MSM_DRM_BLANK_UNBLANK)
+			fts_start_device(info);
+	} else if (event == MSM_DRM_EVENT_BLANK) {
+		if (blank == MSM_DRM_BLANK_POWERDOWN)
+			fts_stop_device(info, info->lowpower_flag);
+	}
+
+	return 0;
+}
 #endif
 
 #if defined(CONFIG_SECURE_TOUCH)
@@ -2737,6 +2766,14 @@ static int fts_probe(struct i2c_client *client, const struct i2c_device_id *idp)
 	p_debug_work = &info->debug_work;
 #endif
 
+#if defined(CONFIG_DRM)
+	info->dsi_panel_notif.notifier_call = dsi_panel_notifier_callback;
+	retval = msm_drm_register_client(&info->dsi_panel_notif);
+	if (retval)
+		input_err(true, &info->client->dev,
+				"%s: Unable to register dsi_panel_notifier: %d!\n", __func__, retval);
+#endif
+
 	input_err(true, &info->client->dev, "%s: done\n", __func__);
 	input_log_fix();
 
@@ -2755,6 +2792,9 @@ err_enable_irq:
 		info->input_dev_pad = NULL;
 	}
 err_register_input_pad:
+#ifdef CONFIG_DRM
+	msm_drm_unregister_client(&info->dsi_panel_notif);
+#endif
 	input_unregister_device(info->input_dev);
 	info->input_dev = NULL;
 	info->input_dev_touch = NULL;
@@ -2854,6 +2894,9 @@ static int fts_remove(struct i2c_client *client)
 
 	info->input_dev = info->input_dev_touch;
 	input_mt_destroy_slots(info->input_dev);
+#ifdef CONFIG_DRM
+	msm_drm_unregister_client(&info->dsi_panel_notif);
+#endif
 	input_unregister_device(info->input_dev);
 	info->input_dev = NULL;
 	info->input_dev_touch = NULL;
