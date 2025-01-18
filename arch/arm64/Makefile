@@ -10,18 +10,10 @@
 #
 # Copyright (C) 1995-2001 by Russell King
 
-<<<<<<< HEAD
-ifeq ($(CONFIG_RELOCATABLE_KERNEL), y) 
-LDFLAGS_vmlinux	:=--no-undefined -X -pie -Bsymbolic
-else 
-LDFLAGS_vmlinux	:=--no-undefined -X
-endif 
-=======
-LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
->>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
+LDFLAGS_vmlinux :=--no-undefined -X -z norelro
 CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
-OBJCOPYFLAGS	:=-O binary -R .note -R .note.gnu.build-id -R .comment -S
-GZFLAGS		:=-9
+OBJCOPYFLAGS  :=-O binary -R .note -R .note.gnu.build-id -R .comment -S
+GZFLAGS   :=-9
 
 ifeq ($(CONFIG_RELOCATABLE), y)
 # Pass --no-apply-dynamic-relocs to restore pre-binutils-2.27 behaviour
