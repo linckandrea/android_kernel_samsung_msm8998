@@ -1748,14 +1748,6 @@ static int fastrpc_internal_invoke(struct fastrpc_file *fl, uint32_t mode,
 	int err = 0, cid = -1, interrupted = 0;
 	struct timespec invoket = {0};
 
-<<<<<<< HEAD
-	VERIFY(err, fl->sctx);
-	if (err)
-		goto bail;
-	VERIFY(err, fl->cid >= 0 && fl->cid < NUM_CHANNELS);
-	if (err)
-		goto bail;
-=======
 	cid = fl->cid;
 	VERIFY(err, cid >= ADSP_DOMAIN_ID && cid < NUM_CHANNELS);
 	if (err) {
@@ -1767,7 +1759,6 @@ static int fastrpc_internal_invoke(struct fastrpc_file *fl, uint32_t mode,
 		err = -EBADR;
 		goto bail;
 	}
->>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 
 	if (fl->profile)
 		getnstimeofday(&invoket);

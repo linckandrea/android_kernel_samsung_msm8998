@@ -1390,16 +1390,6 @@ static int __device_suspend(struct device *dev, pm_message_t state, bool async)
 	pm_runtime_barrier(dev);
 
 	if (pm_wakeup_pending()) {
-<<<<<<< HEAD
-		if (!strcmp(dev->kobj.name, "phy-1da7000.ufsphy.0")) { 
-			dev_warn(dev, "phy-1da7000.ufsphy.0 enter pm_wakeup_pending & pm_runtime_status[%d]%s!\n", 
-					pm_runtime_status_suspended(dev),__func__); 
-		} 
-		pm_get_active_wakeup_sources(suspend_abort,
-			MAX_SUSPEND_ABORT_LEN);
-		log_suspend_abort_reason(suspend_abort);
-=======
->>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 		dev->power.direct_complete = false;
 		async_error = -EBUSY;
 		goto Complete;

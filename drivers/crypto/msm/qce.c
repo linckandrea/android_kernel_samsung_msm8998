@@ -770,11 +770,7 @@ static int _ce_setup(struct qce_device *pce_dev, struct qce_req *q_req,
 		if (q_req->mode !=  QCE_MODE_ECB) {
 			if (ivsize > MAX_IV_LENGTH) {
 				pr_err("%s: error: Invalid length parameter\n",
-<<<<<<< HEAD
-					__func__);
-=======
 					 __func__);
->>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 				return -EINVAL;
 			}
 			_byte_stream_to_net_words(enciv32, q_req->iv, ivsize);
