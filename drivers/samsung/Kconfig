@@ -32,7 +32,7 @@ config SEC_PARAM_SIZE
 
 config SEC_VTS_TEST
 	bool "VTS TEST"
-	default n
+	default y
 	help
 	  This option notices this binary for VTS test.
 
