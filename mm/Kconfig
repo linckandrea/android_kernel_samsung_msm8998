@@ -812,6 +812,7 @@ config PROCESS_RECLAIM
 
 	 Any other vaule is ignored.
 
+<<<<<<< HEAD
 config RBIN
 	bool "RBIN memory support"
 	default n
@@ -837,3 +838,12 @@ config LARGE_DIRTY_BUFFER
 	help
 	  If unsure, say N to use kernel default value
 
+=======
+config VM_MAX_READAHEAD
+	int "default max readahead window size"
+	default 128
+	help
+	 This sets the VM_MAX_READAHEAD value to allow the readahead window
+	 to grow to a maximum size of configured. This will benefit sequential
+	 read throughput and thus early boot performance.
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20

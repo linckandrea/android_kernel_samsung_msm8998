@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2011-2018, 2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -659,6 +659,9 @@ static int check_vaddr_bounds(unsigned long start, unsigned long end)
 	struct vm_area_struct *vma;
 	int ret = 1;
 
+	if (!start)
+		goto out;
+
 	if (end < start)
 		goto out;
 
@@ -812,20 +815,28 @@ long msm_ion_custom_ioctl(struct ion_client *client,
 
 		down_read(&mm->mmap_sem);
 
-		start = (unsigned long)data.flush_data.vaddr +
-			data.flush_data.offset;
-		end = start + data.flush_data.length;
-
-		if (start && check_vaddr_bounds(start, end)) {
-			pr_err("%s: virtual address %pK is out of bounds\n",
+		if ((unsigned long)data.flush_data.vaddr >
+				(ULONG_MAX - data.flush_data.offset)) {
+			pr_err("%s: Integer overflow detected for %pK\n",
 			       __func__, data.flush_data.vaddr);
 			ret = -EINVAL;
 		} else {
-			ret = ion_do_cache_op(
-				client, handle, data.flush_data.vaddr,
-				data.flush_data.offset,
-				data.flush_data.length, cmd);
+			start = (unsigned long)data.flush_data.vaddr +
+				data.flush_data.offset;
+			end = start + data.flush_data.length;
+
+			if (check_vaddr_bounds(start, end)) {
+				pr_err("%s: virtual address %pK is out of bounds\n",
+				       __func__, data.flush_data.vaddr);
+				ret = -EINVAL;
+			} else {
+				ret = ion_do_cache_op(
+					client, handle, data.flush_data.vaddr,
+					data.flush_data.offset,
+					data.flush_data.length, cmd);
+			}
 		}
+
 		up_read(&mm->mmap_sem);
 
 		ion_free_nolock(client, handle);
@@ -840,13 +851,15 @@ long msm_ion_custom_ioctl(struct ion_client *client,
 		int ret;
 
 		ret = ion_walk_heaps(client, data.prefetch_data.heap_id,
-			ION_HEAP_TYPE_SECURE_DMA,
-			(void *)data.prefetch_data.len,
-			ion_secure_cma_prefetch);
+				     (enum ion_heap_type)
+				     ION_HEAP_TYPE_SECURE_DMA,
+				     (void *)data.prefetch_data.len,
+				     ion_secure_cma_prefetch);
 		if (ret)
 			return ret;
 
 		ret = ion_walk_heaps(client, data.prefetch_data.heap_id,
+				     (enum ion_heap_type)
 				     ION_HEAP_TYPE_SYSTEM_SECURE,
 				     (void *)&data.prefetch_data,
 				     ion_system_secure_heap_prefetch);
@@ -859,14 +872,16 @@ long msm_ion_custom_ioctl(struct ion_client *client,
 		int ret;
 
 		ret = ion_walk_heaps(client, data.prefetch_data.heap_id,
-			ION_HEAP_TYPE_SECURE_DMA,
-			(void *)data.prefetch_data.len,
-			ion_secure_cma_drain_pool);
+				     (enum ion_heap_type)
+				     ION_HEAP_TYPE_SECURE_DMA,
+				     (void *)data.prefetch_data.len,
+				     ion_secure_cma_drain_pool);
 
 		if (ret)
 			return ret;
 
 		ret = ion_walk_heaps(client, data.prefetch_data.heap_id,
+				     (enum ion_heap_type)
 				     ION_HEAP_TYPE_SYSTEM_SECURE,
 				     (void *)&data.prefetch_data,
 				     ion_system_secure_heap_drain);

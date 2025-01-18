@@ -3253,6 +3253,7 @@ int wcd_mbhc_init(struct wcd_mbhc *mbhc, struct snd_soc_codec *codec,
 			return ret;
 		}
 
+<<<<<<< HEAD
 		snd_jack_set_key(mbhc->button_jack.jack,
 					SND_JACK_BTN_1,
 					KEY_VOICECOMMAND);
@@ -3283,6 +3284,8 @@ int wcd_mbhc_init(struct wcd_mbhc *mbhc, struct snd_soc_codec *codec,
 		set_bit(INPUT_PROP_NO_DUMMY_RELEASE,
 			mbhc->button_jack.jack->input_dev->propbit);
 
+=======
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 		INIT_DELAYED_WORK(&mbhc->mbhc_firmware_dwork,
 				  wcd_mbhc_fw_read);
 		INIT_DELAYED_WORK(&mbhc->mbhc_btn_dwork, wcd_btn_lpress_fn);

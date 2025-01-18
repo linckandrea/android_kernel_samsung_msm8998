@@ -1248,7 +1248,11 @@ defrag_check_defrag_required(
 		frag_ratio = ((amap->n_au - amap->n_clean_au) * 100) / amap->n_full_au;
 	else
 		frag_ratio = ((amap->n_au - amap->n_clean_au) * 100) /
+<<<<<<< HEAD
 					(fsi->used_clusters * CLUS_PER_AU(sb));
+=======
+					(fsi->used_clusters / CLUS_PER_AU(sb) + 1);
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 
 	/*
 	 * Wake-up defrag_daemon:

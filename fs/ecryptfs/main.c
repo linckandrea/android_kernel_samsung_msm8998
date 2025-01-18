@@ -807,9 +807,17 @@ static struct dentry *ecryptfs_mount(struct file_system_type *fs_type, int flags
 		goto out;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_SDP
 	sbi->userid = -1;
 #endif
+=======
+	if (!dev_name) {
+		rc = -EINVAL;
+		err = "Device name cannot be null";
+		goto out;
+	}
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 
 	rc = ecryptfs_parse_options(sbi, raw_data, &check_ruid);
 	if (rc) {

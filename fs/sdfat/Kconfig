@@ -1,6 +1,10 @@
 config SDFAT_FS
+<<<<<<< HEAD
 	tristate
 	default y
+=======
+	tristate "sdFAT filesystem support"
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 	select NLS
 	select NLS_UTF8
 	select NLS_CODEPAGE_437
@@ -15,6 +19,23 @@ config SDFAT_FS
 	  To compile this as a module, choose M here: the module will be called
 	  sdfat_core and sdfat_fs.
 
+<<<<<<< HEAD
+=======
+config SDFAT_USE_FOR_EXFAT
+	bool "Register sdFAT as exFAT"
+	default y
+	depends on SDFAT_FS && !EXFAT_FS
+	help
+	  If you want to register sdFAT as available for exFAT, say Y.
+
+config SDFAT_USE_FOR_VFAT
+	bool "Register sdFAT as VFAT"
+	default y
+	depends on SDFAT_FS && !VFAT_FS
+	help
+	  If you want to register sdFAT as available for VFAT, say Y.
+
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 config SDFAT_DELAYED_META_DIRTY
 	bool "Enable delayed metadata dirty"
 	default y
@@ -97,6 +118,14 @@ config SDFAT_DBG_BUGON
 	depends on SDFAT_FS && SDFAT_DEBUG
 	default n
 
+<<<<<<< HEAD
+=======
+config SDFAT_DBG_WARNON
+	bool "enable strict WARN_ON() for debugging"
+	depends on SDFAT_FS && SDFAT_DEBUG
+	default n
+
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 config SDFAT_STATISTICS
 	bool "enable statistics for bigdata"
 	depends on SDFAT_FS

@@ -25,6 +25,7 @@
 #include <linux/percpu.h>
 #include <linux/slab.h>
 #include <linux/module.h>
+#include <linux/wakeup_reason.h>
 
 #include <linux/irqchip.h>
 #include <linux/irqchip/arm-gic-v3.h>
@@ -453,6 +454,7 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 		else if (desc->action && desc->action->name)
 			name = desc->action->name;
 
+<<<<<<< HEAD
 		pr_warn("%s: %d triggered %s(gic%d)\n", __func__, irq, name, i);
 
 #ifdef CONFIG_SEC_PM
@@ -470,6 +472,10 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 
 		len += sprintf(reason + len, "[irq%d,%s]", i, name);
 #endif
+=======
+		log_base_wakeup_reason(irq);
+		pr_warn("%s: %d triggered %s\n", __func__, irq, name);
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 	}
 
 #ifdef CONFIG_SEC_PM

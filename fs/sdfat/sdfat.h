@@ -413,6 +413,10 @@ void sdfat_debug_check_clusters(struct inode *inode);
 
 #define sdfat_debug_check_clusters(inode)
 #define sdfat_debug_bug_on(expr)
+<<<<<<< HEAD
+=======
+#define sdfat_debug_warn_on(expr)
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 
 #endif /* CONFIG_SDFAT_DEBUG */
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -454,9 +454,9 @@ int ipa3_copy_ul_filter_rule_to_ipa(struct ipa_install_fltr_rule_req_msg_v01
 			goto failure;
 		}
 		ipa3_qmi_ctx->q6_ul_filter_rule[i].ip =
-			rule_req->filter_spec_ex_list[i].ip_type;
+			(enum ipa_ip_type)rule_req->filter_spec_ex_list[i].ip_type;
 		ipa3_qmi_ctx->q6_ul_filter_rule[i].action =
-			rule_req->filter_spec_ex_list[i].filter_action;
+			(enum ipa_flt_action)rule_req->filter_spec_ex_list[i].filter_action;
 		if (rule_req->filter_spec_ex_list[i].
 			is_routing_table_index_valid == true)
 			ipa3_qmi_ctx->q6_ul_filter_rule[i].rt_tbl_idx =
@@ -722,7 +722,8 @@ static int ipa3_wwan_add_ul_flt_rule_to_ipa(void)
 		retval = -EFAULT;
 	}
 
-	req->install_status = QMI_RESULT_SUCCESS_V01;
+	req->install_status = (enum ipa_qmi_result_type_v01)
+						IPA_QMI_RESULT_SUCCESS_V01;
 	req->rule_id_valid = 1;
 	req->rule_id_len = rmnet_ipa3_ctx->num_q6_rules;
 	for (i = 0; i < rmnet_ipa3_ctx->num_q6_rules; i++) {

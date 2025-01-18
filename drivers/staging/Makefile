@@ -47,5 +47,9 @@ obj-$(CONFIG_FB_TFT)		+= fbtft/
 obj-$(CONFIG_FSL_MC_BUS)	+= fsl-mc/
 obj-$(CONFIG_WILC1000)		+= wilc1000/
 obj-$(CONFIG_MOST)		+= most/
+<<<<<<< HEAD
 obj-$(CONFIG_SEC_STI)		+= sti/
 obj-$(CONFIG_VNSWAP)		+= vnswap/
+=======
+obj-$(CONFIG_QCA_CLD_WLAN)	+= qcacld-3.0/
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20

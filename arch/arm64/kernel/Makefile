@@ -10,6 +10,8 @@ CFLAGS_REMOVE_ftrace.o = -pg
 CFLAGS_REMOVE_insn.o = -pg
 CFLAGS_REMOVE_return_address.o = -pg
 
+CFLAGS_setup.o = -DUTS_MACHINE='"$(UTS_MACHINE)"'
+
 # Object file lists.
 arm64-obj-y		:= debug-monitors.o entry.o irq.o fpsimd.o		\
 			   entry-fpsimd.o process.o ptrace.o setup.o signal.o	\
@@ -25,9 +27,18 @@ OBJCOPYFLAGS := --prefix-symbols=__efistub_
 $(obj)/%.stub.o: $(obj)/%.o FORCE
 	$(call if_changed,objcopy)
 
+<<<<<<< HEAD
 arm64-obj-$(CONFIG_COMPAT)		+= sys32.o kuser32.o signal32.o 	\
 					   sys_compat.o entry32.o		\
 					   ../../arm/kernel/opcodes.o
+=======
+arm64-obj-$(CONFIG_COMPAT)		+= sys32.o signal32.o	\
+					   sys_compat.o entry32.o
+ifneq ($(CONFIG_VDSO32),y)
+arm64-obj-$(CONFIG_COMPAT)		+= sigreturn32.o
+endif
+arm64-obj-$(CONFIG_KUSER_HELPERS)	+= kuser32.o
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 arm64-obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o entry-ftrace.o
 arm64-obj-$(CONFIG_MODULES)		+= arm64ksyms.o module.o
 arm64-obj-$(CONFIG_ARM64_MODULE_PLTS)	+= module-plts.o
@@ -52,7 +63,12 @@ ifeq ($(CONFIG_KVM),y)
 arm64-obj-$(CONFIG_HARDEN_BRANCH_PREDICTOR)	+= bpi.o
 endif
 
+<<<<<<< HEAD
 obj-y					+= $(arm64-obj-y) vdso/
+=======
+obj-y					+= $(arm64-obj-y) vdso/ probes/
+obj-$(CONFIG_VDSO32)			+= vdso32/
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 obj-m					+= $(arm64-obj-m)
 head-y					:= head.o
 extra-y					+= $(head-y) vmlinux.lds

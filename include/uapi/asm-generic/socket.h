@@ -87,6 +87,7 @@
 #define SO_ATTACH_BPF		50
 #define SO_DETACH_BPF		SO_DETACH_FILTER
 
+<<<<<<< HEAD
 /* START_OF_KNOX_NPA */
 #define SO_SET_DOMAIN_NAME	55
 #define SO_SET_DNS_UID		56
@@ -95,5 +96,11 @@
 /* START_OF_KNOX_NPA */
 #define SO_SET_DNS_PID		58
 /* END_OF_KNOX_NPA */
+=======
+#define SO_ATTACH_REUSEPORT_CBPF	51
+#define SO_ATTACH_REUSEPORT_EBPF	52
+
+#define SO_COOKIE		57
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 
 #endif /* __ASM_GENERIC_SOCKET_H */

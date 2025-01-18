@@ -1,6 +1,6 @@
 /* Qualcomm Crypto Engine driver.
  *
- * Copyright (c) 2010-2016, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2010-2016, 2020 The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -770,7 +770,11 @@ static int _ce_setup(struct qce_device *pce_dev, struct qce_req *q_req,
 		if (q_req->mode !=  QCE_MODE_ECB) {
 			if (ivsize > MAX_IV_LENGTH) {
 				pr_err("%s: error: Invalid length parameter\n",
+<<<<<<< HEAD
 					__func__);
+=======
+					 __func__);
+>>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 				return -EINVAL;
 			}
 			_byte_stream_to_net_words(enciv32, q_req->iv, ivsize);
