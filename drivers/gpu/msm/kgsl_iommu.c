@@ -2423,16 +2423,6 @@ static uint64_t kgsl_iommu_find_svm_region(struct kgsl_pagetable *pagetable,
 static bool iommu_addr_in_svm_ranges(struct kgsl_iommu_pt *pt,
 	u64 gpuaddr, u64 size)
 {
-<<<<<<< HEAD
-	if ((gpuaddr >= pt->compat_va_start && gpuaddr < pt->compat_va_end) &&
-		((gpuaddr + size) > pt->compat_va_start &&
-			(gpuaddr + size) <= pt->compat_va_end))
-		return true;
-
-	if ((gpuaddr >= pt->svm_start && gpuaddr < pt->svm_end) &&
-		((gpuaddr + size) > pt->svm_start &&
-			(gpuaddr + size) <= pt->svm_end))
-=======
 	u64 end = gpuaddr + size;
 
 	/* Make sure size is not zero and we don't wrap around */
@@ -2445,7 +2435,6 @@ static bool iommu_addr_in_svm_ranges(struct kgsl_iommu_pt *pt,
 
 	if ((gpuaddr >= pt->svm_start && gpuaddr < pt->svm_end) &&
 		(end > pt->svm_start && end <= pt->svm_end))
->>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 		return true;
 
 	return false;

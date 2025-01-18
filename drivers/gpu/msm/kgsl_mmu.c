@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-/* Copyright (c) 2002,2007-2017,2020-2021, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2002,2007-2017,2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -437,12 +433,8 @@ void kgsl_mmu_put_gpuaddr(struct kgsl_memdesc *memdesc)
 	if (memdesc->size == 0 || memdesc->gpuaddr == 0)
 		return;
 
-<<<<<<< HEAD
-	if (!kgsl_memdesc_is_global(memdesc) && (KGSL_MEMDESC_MAPPED & memdesc->priv))
-=======
 	if (!kgsl_memdesc_is_global(memdesc) &&
 			 (KGSL_MEMDESC_MAPPED & memdesc->priv))
->>>>>>> 6e78fb2278f388b826238d086ab3b0e0b9c14d20
 		unmap_fail = kgsl_mmu_unmap(pagetable, memdesc);
 
 	/*
