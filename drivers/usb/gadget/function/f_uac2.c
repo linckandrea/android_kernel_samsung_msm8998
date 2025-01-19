@@ -451,35 +451,7 @@ struct cntrl_range_lay3 {
 	__le32	dRES;
 } __packed;
 
-<<<<<<< HEAD
 static void set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
-=======
-static inline void
-free_ep(struct uac2_rtd_params *prm, struct usb_ep *ep)
-{
-	struct snd_uac2_chip *uac2 = prm->uac2;
-	int i;
-
-	if (!prm->ep_enabled)
-		return;
-
-	prm->ep_enabled = false;
-
-	for (i = 0; i < USB_XFERS; i++) {
-		if (prm->ureq[i].req) {
-			usb_ep_dequeue(ep, prm->ureq[i].req);
-			usb_ep_free_request(ep, prm->ureq[i].req);
-			prm->ureq[i].req = NULL;
-		}
-	}
-
-	if (usb_ep_disable(ep))
-		dev_err(&uac2->pdev.dev,
-			"%s:%d Error!\n", __func__, __LINE__);
-}
-
-static int set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	struct usb_endpoint_descriptor *ep_desc,
 	enum usb_device_speed speed, bool is_playback)
 {
@@ -617,44 +589,10 @@ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
 		return -ENODEV;
 	}
 
-<<<<<<< HEAD
 	agdev->in_ep_maxpsize = max(fs_epin_desc.wMaxPacketSize,
 					hs_epin_desc.wMaxPacketSize);
 	agdev->out_ep_maxpsize = max(fs_epout_desc.wMaxPacketSize,
 					hs_epout_desc.wMaxPacketSize);
-=======
-	uac2->p_prm.uac2 = uac2;
-	uac2->c_prm.uac2 = uac2;
-
-	/* Calculate wMaxPacketSize according to audio bandwidth */
-	ret = set_ep_max_packet_size(uac2_opts, &fs_epin_desc, USB_SPEED_FULL,
-				     true);
-	if (ret < 0) {
-		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
-		return ret;
-	}
-
-	ret = set_ep_max_packet_size(uac2_opts, &fs_epout_desc, USB_SPEED_FULL,
-				     false);
-	if (ret < 0) {
-		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
-		return ret;
-	}
-
-	ret = set_ep_max_packet_size(uac2_opts, &hs_epin_desc, USB_SPEED_HIGH,
-				     true);
-	if (ret < 0) {
-		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
-		return ret;
-	}
-
-	ret = set_ep_max_packet_size(uac2_opts, &hs_epout_desc, USB_SPEED_HIGH,
-				     false);
-	if (ret < 0) {
-		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
-		return ret;
-	}
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 
 	hs_epout_desc.bEndpointAddress = fs_epout_desc.bEndpointAddress;
 	hs_epin_desc.bEndpointAddress = fs_epin_desc.bEndpointAddress;

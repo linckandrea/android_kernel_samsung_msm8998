@@ -777,22 +777,9 @@ static int gs_start_io(struct gs_port *port)
 	port->n_read = 0;
 	started = gs_start_rx(port);
 
-<<<<<<< HEAD
-	if (!port->port_usb) {
-                printk(KERN_ERR "usb:[%s] port_usb is NULL!! started(%d)\n",
-                        __func__, started);
+	if (!port->port_usb)
 		return -EIO;
-        }
 
-        if (!port->port.tty) {
-                printk(KERN_ERR "usb:[%s] port_tty is NULL!! started(%d)\n",
-                        __func__, started);
-                return -EIO;
-        }
-
-	/* unblock any pending writes into our circular buffer */
-=======
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	if (started) {
 		gs_start_tx(port);
 		/* Unblock any pending writes into our circular buffer, in case
