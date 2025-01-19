@@ -325,7 +325,9 @@ static int diagchar_open(struct inode *inode, struct file *file)
 	void *temp;
 
 	if (driver) {
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 		mutex_lock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 
 		for (i = 0; i < driver->num_clients; i++)
 			if (driver->client_map[i].pid == 0)
@@ -353,6 +355,7 @@ static int diagchar_open(struct inode *inode, struct file *file)
 				diag_add_client(i, file);
 			} else {
 				mutex_unlock(&driver->diagchar_mutex);
+				DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 				pr_err_ratelimited("diag: Max client limit for DIAG reached\n");
 				pr_err_ratelimited("diag: Cannot open handle %s"
 					   " %d", current->comm, current->tgid);
@@ -380,6 +383,7 @@ static int diagchar_open(struct inode *inode, struct file *file)
 			diag_mempool_init();
 		driver->ref_count++;
 		mutex_unlock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 		return 0;
 	}
 	return -ENOMEM;
@@ -387,6 +391,7 @@ static int diagchar_open(struct inode *inode, struct file *file)
 fail:
 	driver->num_clients--;
 	mutex_unlock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 	pr_err_ratelimited("diag: Insufficient memory for new client");
 	return -ENOMEM;
 }
@@ -490,7 +495,9 @@ static void diag_close_logging_process(const int pid)
 	driver->mask_clear = 1;
 	mutex_unlock(&driver->diag_maskclear_mutex);
 
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 	mutex_lock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 
 	p_mask =
 	diag_translate_kernel_to_user_mask(session_mask);
@@ -521,6 +528,7 @@ static void diag_close_logging_process(const int pid)
 	diag_switch_logging(&params);
 
 	mutex_unlock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 }
 
 static int diag_remove_client_entry(struct file *file)
@@ -562,7 +570,9 @@ static int diag_remove_client_entry(struct file *file)
 	/* Delete the pkt response table entry for the exiting process */
 	diag_cmd_remove_reg_by_pid(current->tgid);
 
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 	mutex_lock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 	driver->ref_count--;
 	if (driver->ref_count == 0)
 		diag_mempool_exit();
@@ -578,6 +588,7 @@ static int diag_remove_client_entry(struct file *file)
 		}
 	}
 	mutex_unlock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 	mutex_unlock(&driver->diag_file_mutex);
 	return 0;
 }
@@ -1931,13 +1942,16 @@ static int diag_ioctl_lsm_deinit(void)
 {
 	int i;
 
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 	mutex_lock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 	for (i = 0; i < driver->num_clients; i++)
 		if (driver->client_map[i].pid == current->tgid)
 			break;
 
 	if (i == driver->num_clients) {
 		mutex_unlock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 		return -EINVAL;
 	}
 	if (!(driver->data_ready[i] & DEINIT_TYPE)) {
@@ -1945,6 +1959,7 @@ static int diag_ioctl_lsm_deinit(void)
 		atomic_inc(&driver->data_ready_notif[i]);
 	}
 	mutex_unlock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 	wake_up_interruptible(&driver->wait_q);
 
 	return 1;
@@ -2432,9 +2447,12 @@ long diagchar_compat_ioctl(struct file *filp,
 		if (copy_from_user((void *)&mode_param, (void __user *)ioarg,
 				   sizeof(mode_param)))
 			return -EFAULT;
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 		mutex_lock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 		result = diag_switch_logging(&mode_param);
 		mutex_unlock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 		break;
 	case DIAG_IOCTL_REMOTE_DEV:
 		remote_dev = diag_get_remote_device_mask();
@@ -2563,9 +2581,12 @@ long diagchar_ioctl(struct file *filp,
 		if (copy_from_user((void *)&mode_param, (void __user *)ioarg,
 				   sizeof(mode_param)))
 			return -EFAULT;
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 		mutex_lock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 		result = diag_switch_logging(&mode_param);
 		mutex_unlock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 		break;
 	case DIAG_IOCTL_REMOTE_DEV:
 		remote_dev = diag_get_remote_device_mask();
@@ -3135,24 +3156,31 @@ static ssize_t diagchar_read(struct file *file, char __user *buf, size_t count,
 	struct pid *pid_struct = NULL;
 	struct task_struct *task_s = NULL;
 
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 	mutex_lock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 	for (i = 0; i < driver->num_clients; i++)
 		if (driver->client_map[i].pid == current->tgid)
 			index = i;
 	mutex_unlock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 
 	if (index == -1) {
 		pr_err("diag: Client PID not found in table");
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS, "Client PID not found in table\n");
 		return -EINVAL;
 	}
 	if (!buf) {
 		pr_err("diag: bad address from user side\n");
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS, "bad address from user side\n");
 		return -EFAULT;
 	}
 	wait_event_interruptible(driver->wait_q,
 			atomic_read(&driver->data_ready_notif[index]) > 0);
 
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 	mutex_lock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 
 	if ((driver->data_ready[index] & USER_SPACE_DATA_TYPE) &&
 	    (driver->logging_mode == DIAG_MEMORY_DEVICE_MODE ||
@@ -3205,6 +3233,7 @@ static ssize_t diagchar_read(struct file *file, char __user *buf, size_t count,
 		driver->data_ready[index] ^= DEINIT_TYPE;
 		atomic_dec(&driver->data_ready_notif[index]);
 		mutex_unlock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 		diag_remove_client_entry(file);
 		return ret;
 	}
@@ -3336,6 +3365,7 @@ exit:
 	if (driver->data_ready[index] & DCI_DATA_TYPE) {
 		data_type = driver->data_ready[index] & DCI_DATA_TYPE;
 		mutex_unlock(&driver->diagchar_mutex);
+		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 		/* Copy the type of data being passed */
 		mutex_lock(&driver->dci_mutex);
 		list_for_each_safe(start, temp, &driver->dci_client_list) {
@@ -3381,10 +3411,13 @@ exit:
 			ret += sizeof(int);
 			copy_dci_data = 1;
 			exit_stat = diag_copy_dci(buf, count, entry, &ret);
+			DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Waiting for diagchar_mutex\n");
 			mutex_lock(&driver->diagchar_mutex);
+			DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Taken diagchar_mutex\n");
 			driver->data_ready[index] ^= DCI_DATA_TYPE;
 			atomic_dec(&driver->data_ready_notif[index]);
 			mutex_unlock(&driver->diagchar_mutex);
+			DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 			if (exit_stat == 1) {
 				put_task_struct(task_s);
 				put_pid(pid_struct);
@@ -3398,6 +3431,7 @@ exit:
 		goto end;
 	}
 	mutex_unlock(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Released diagchar_mutex\n");
 end:
 	/*
 	 * Flush any read that is currently pending on DCI data and
@@ -3927,12 +3961,14 @@ static int __init diagchar_init(void)
 	non_hdlc_data.len = 0;
 	mutex_init(&driver->hdlc_disable_mutex);
 	mutex_init(&driver->diagchar_mutex);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Init diagchar_mutex\n");
 	mutex_init(&driver->diag_maskclear_mutex);
 	mutex_init(&driver->diag_notifier_mutex);
 	mutex_init(&driver->diag_file_mutex);
 	mutex_init(&driver->delayed_rsp_mutex);
 	mutex_init(&apps_data_mutex);
 	mutex_init(&driver->msg_mask_lock);
+	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"Init msg_mask_lock\n");
 	mutex_init(&driver->hdlc_recovery_mutex);
 	for (i = 0; i < NUM_PERIPHERALS; i++)
 		mutex_init(&driver->diagfwd_channel_mutex[i]);

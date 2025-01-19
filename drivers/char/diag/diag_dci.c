@@ -24,9 +24,9 @@
 #include <linux/spinlock.h>
 #include <linux/ratelimit.h>
 #include <linux/reboot.h>
+#include <linux/vmalloc.h>
 #include <asm/current.h>
 #include <soc/qcom/restart.h>
-#include <linux/vmalloc.h>
 #ifdef CONFIG_DIAG_OVER_USB
 #include <linux/usb/usbdiag.h>
 #endif
@@ -1061,6 +1061,11 @@ void extract_dci_pkt_rsp(unsigned char *buf, int len, int data_source,
 		return;
 	}
 
+	if (token != entry->client_info.token) {
+		mutex_unlock(&driver->dci_mutex);
+		return;
+	}
+	
 	mutex_lock(&entry->buffers[data_source].buf_mutex);
 	rsp_buf = entry->buffers[data_source].buf_cmd;
 
@@ -2359,8 +2364,8 @@ struct diag_dci_client_tbl *dci_lookup_client_entry_pid(int tgid)
 		pid_struct = find_get_pid(entry->tgid);
 		if (!pid_struct) {
 			DIAG_LOG(DIAG_DEBUG_DCI,
-			"diag: Exited pid (%d) doesn't match dci client of pid (%d)\n",
-			tgid, entry->tgid);
+				"diag: Exited pid (%d) doesn't match dci client of pid (%d)\n",
+				tgid, entry->tgid);
 			continue;
 		}
 		task_s = get_pid_task(pid_struct, PIDTYPE_PID);
@@ -3132,6 +3137,7 @@ fail_alloc:
 		kfree(new_entry);
 		new_entry = NULL;
 	}
+	put_task_struct(current);
 	mutex_unlock(&driver->dci_mutex);
 	return DIAG_DCI_NO_REG;
 }

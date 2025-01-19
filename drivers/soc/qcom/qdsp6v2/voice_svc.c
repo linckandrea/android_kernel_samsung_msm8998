@@ -656,7 +656,7 @@ static int voice_svc_open(struct inode *inode, struct file *file)
 		ret = -EBUSY;
 		goto done;
 	}
-
+	
 	prtd = kmalloc(sizeof(struct voice_svc_prvt), GFP_KERNEL);
 
 	if (prtd == NULL) {

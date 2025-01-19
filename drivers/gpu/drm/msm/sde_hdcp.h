@@ -59,7 +59,6 @@ struct sde_hdcp_init_data {
 	struct workqueue_struct *workq;
 	void *cb_data;
 	void (*notify_status)(void *cb_data, enum sde_hdcp_states status);
-	void (*avmute_sink)(void *cb_data);
 	struct sde_hdmi_tx_ddc_ctrl *ddc_ctrl;
 	u8 sink_rx_status;
 	u16 *version;
