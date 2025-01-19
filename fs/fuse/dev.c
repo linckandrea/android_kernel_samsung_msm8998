@@ -2259,13 +2259,9 @@ EXPORT_SYMBOL_GPL(fuse_abort_conn);
 
 void fuse_wait_aborted(struct fuse_conn *fc)
 {
-<<<<<<< HEAD
-	fuse_wait_event(fc->blocked_waitq, atomic_read(&fc->num_waiting) == 0);
-=======
 	/* matches implicit memory barrier in fuse_drop_waiting() */
 	smp_mb();
 	wait_event(fc->blocked_waitq, atomic_read(&fc->num_waiting) == 0);
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 }
 
 int fuse_dev_release(struct inode *inode, struct file *file)

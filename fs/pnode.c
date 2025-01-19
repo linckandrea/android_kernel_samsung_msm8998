@@ -301,11 +301,8 @@ static int propagate_one(struct mount *m)
 	rkp_reset_mnt_flags(child->mnt,MNT_LOCKED);
 #else
 	child->mnt.mnt_flags &= ~MNT_LOCKED;
-<<<<<<< HEAD
 #endif
-=======
 	read_seqlock_excl(&mount_lock);
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	mnt_set_mountpoint(m, mp, child);
 	if (m->mnt_master != dest_master)
 		SET_MNT_MARK(m->mnt_master);

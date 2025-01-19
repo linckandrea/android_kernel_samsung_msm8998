@@ -615,13 +615,7 @@ resizefs_out:
 		    sizeof(range)))
 			return -EFAULT;
 
-<<<<<<< HEAD
-		range.minlen = max((unsigned int)range.minlen,
-				   q->limits.discard_granularity);
-		ret = ext4_trim_fs(sb, &range, flags);
-=======
 		ret = ext4_trim_fs(sb, &range);
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 		if (ret < 0)
 			return ret;
 

@@ -2103,12 +2103,6 @@ void __mark_inode_dirty(struct inode *inode, int flags)
 	    (dirtytime && (inode->i_state & I_DIRTY_INODE)))
 		return;
 
-<<<<<<< HEAD
-	if (unlikely(block_dump > 1))
-		block_dump___mark_inode_dirty(inode);
-
-=======
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	spin_lock(&inode->i_lock);
 	if (dirtytime && (inode->i_state & I_DIRTY_INODE))
 		goto out_unlock_inode;

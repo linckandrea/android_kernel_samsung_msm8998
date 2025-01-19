@@ -144,11 +144,6 @@ int ovl_permission(struct inode *inode, int mask)
 	}
 
 	err = __inode_permission(realinode, mask);
-<<<<<<< HEAD
-	ovl_revert_creds(old_cred);
-
-=======
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 out_dput:
 	dput(alias);
 	return err;

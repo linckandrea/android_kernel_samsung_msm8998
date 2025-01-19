@@ -569,8 +569,6 @@ static void
 ext4_xattr_release_block(handle_t *handle, struct inode *inode,
 			 struct buffer_head *bh)
 {
-	struct mb_cache *ext4_mb_cache = EXT4_GET_MB_CACHE(inode);
-	u32 hash, ref;
 	int error = 0;
 
 	BUFFER_TRACE(bh, "get_write_access");
@@ -579,42 +577,25 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
 		goto out;
 
 	lock_buffer(bh);
-	hash = le32_to_cpu(BHDR(bh)->h_hash);
-	ref = le32_to_cpu(BHDR(bh)->h_refcount);
-	if (ref == 1) {
+	if (BHDR(bh)->h_refcount == cpu_to_le32(1)) {
+		__u32 hash = le32_to_cpu(BHDR(bh)->h_hash);
+
 		ea_bdebug(bh, "refcount now=0; freeing");
 		/*
 		 * This must happen under buffer lock for
 		 * ext4_xattr_block_set() to reliably detect freed block
 		 */
-		mb_cache_entry_delete_block(ext4_mb_cache, hash, bh->b_blocknr);
+		mb2_cache_entry_delete_block(EXT4_GET_MB_CACHE(inode), hash,
+					     bh->b_blocknr);
 		get_bh(bh);
 		unlock_buffer(bh);
 		ext4_free_blocks(handle, inode, bh, 0, 1,
 				 EXT4_FREE_BLOCKS_METADATA |
 				 EXT4_FREE_BLOCKS_FORGET);
 	} else {
-<<<<<<< HEAD
-		ref--;
-		BHDR(bh)->h_refcount = cpu_to_le32(ref);
-		if (ref == EXT4_XATTR_REFCOUNT_MAX - 1) {
-			struct mb_cache_entry *ce;
-
-			ce = mb_cache_entry_get(ext4_mb_cache, hash,
-						bh->b_blocknr);
-			if (ce) {
-				ce->e_reusable = 1;
-				mb_cache_entry_put(ext4_mb_cache, ce);
-			}
-		}
-
-=======
 		le32_add_cpu(&BHDR(bh)->h_refcount, -1);
-		if (ce)
-			mb_cache_entry_release(ce);
 
 		ext4_xattr_block_csum_set(inode, bh);
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 		/*
 		 * Beware of this ugliness: Releasing of xattr block references
 		 * from different inodes can race and so we have to protect

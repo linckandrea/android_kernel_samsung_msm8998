@@ -1319,37 +1319,6 @@ int ext4_search_dir(struct buffer_head *bh, char *search_buf, int buf_size,
 	while ((char *) de < dlimit) {
 		/* this code is executed quadratically often */
 		/* do minimal checking `by hand' */
-<<<<<<< HEAD
-		if ((char *) de + de->name_len <= dlimit) {
-			if (ci_name_buf)
-				res = ext4_ci_match(fname, de, dir, ci_name_buf);
-			else
-				res = ext4_match(fname, de);
-			if (res < 0) {
-				res = -1;
-				printk(KERN_ERR
-				   "%s: ext4_%smatch error. usr_name : %s, "
-				   "buf : %p, offset : %lu\n", __func__,
-				   (ci_name_buf)? "ci_" : "",
-				   fname->usr_fname->name, search_buf,
-				   (unsigned long)de - (unsigned long)search_buf);
-				goto return_result;
-			}
-			if (res > 0) {
-				/* found a match - just to be sure, do
-				 * a full check */
-				if (ext4_check_dir_entry(dir, NULL, de, bh,
-						bh->b_data,
-						 bh->b_size, offset)) {
-					res = -1;
-					goto return_result;
-				}
-				*res_dir = de;
-				res = 1;
-				goto return_result;
-			}
-
-=======
 		if ((char *) de + de->name_len <= dlimit &&
 		    ext4_match(fname, de)) {
 			/* found a match - just to be sure, do
@@ -1359,26 +1328,12 @@ int ext4_search_dir(struct buffer_head *bh, char *search_buf, int buf_size,
 				return -1;
 			*res_dir = de;
 			return 1;
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 		}
 		/* prevent looping on a bad block */
 		de_len = ext4_rec_len_from_disk(de->rec_len,
 						dir->i_sb->s_blocksize);
-<<<<<<< HEAD
-		if (de_len <= 0) {
-			res = -1;
-			printk(KERN_ERR
-			   "%s: Get invalid rec_len from disk."
-			   "usr_name : %s, buf : %p, offset : %lu, rec_len: %d\n",
-			   __func__, fname->usr_fname->name, search_buf,
-			   (unsigned long)de - (unsigned long)search_buf,
-			   (int)le16_to_cpu(de->rec_len));
-			goto return_result;
-		}
-=======
 		if (de_len <= 0)
 			return -1;
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 		offset += de_len;
 		de = (struct ext4_dir_entry_2 *) ((char *) de + de_len);
 	}

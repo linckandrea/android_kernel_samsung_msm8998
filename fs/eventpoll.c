@@ -1901,10 +1901,6 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, int, op, int, fd,
 				error = -ELOOP;
 				if (ep_loop_check(ep, tf.file) != 0)
 					goto error_tgt_fput;
-<<<<<<< HEAD
-				}
-=======
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 			} else {
 				get_file(tf.file);
 				list_add(&tf.file->f_tfile_llink,
