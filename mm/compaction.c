@@ -841,6 +841,7 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 		 * Skip any other type of page
 		 */
 		if (!PageLRU(page)) {
+#ifdef CONFIG_ZSWAP_MIGRATION_SUPPORT
 			/*
 			 * __PageMovable can return false positive so we need
 			 * to verify it under page_lock.
@@ -856,7 +857,7 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 				if (!isolate_movable_page(page, isolate_mode))
 					goto isolate_success;
 			}
-
+#endif
 			continue;
 		}
 
@@ -902,7 +903,9 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 		/* Successfully isolated */
 		del_page_from_lru_list(page, lruvec, page_lru(page));
 
+#ifdef CONFIG_ZSWAP_MIGRATION_SUPPORT
 isolate_success:
+#endif
 		list_add(&page->lru, migratelist);
 		cc->nr_migratepages++;
 		nr_isolated++;
@@ -1085,6 +1088,9 @@ static void isolate_freepages(struct compact_control *cc)
 		if (!isolation_suitable(cc, page))
 			continue;
 
+		if (is_migrate_rbin_page(page))
+			continue;
+
 		/* Found a block suitable for isolating free pages from. */
 		isolate_freepages_block(cc, &isolate_start_pfn, block_end_pfn,
 					freelist, false);
@@ -1237,6 +1243,8 @@ static isolate_migrate_t isolate_migratepages(struct zone *zone,
 		if (!isolation_suitable(cc, page))
 			continue;
 
+		if (is_migrate_rbin_page(page))
+			continue;
 		/*
 		 * For async compaction, also only scan in MOVABLE blocks.
 		 * Async compaction is optimistic to see if the minimum amount
@@ -1780,7 +1788,7 @@ static void compact_node(int nid)
 {
 	struct compact_control cc = {
 		.order = -1,
-		.mode = MIGRATE_SYNC,
+		.mode = MIGRATE_SYNC_LIGHT,
 		.ignore_skip_hint = true,
 	};
 
@@ -1806,8 +1814,16 @@ int sysctl_compact_memory;
 int sysctl_compaction_handler(struct ctl_table *table, int write,
 			void __user *buffer, size_t *length, loff_t *ppos)
 {
-	if (write)
+	if (write) {
+		pr_info("compact_memory start.(%d times so far)\n",
+			sysctl_compact_memory);
+		sysctl_compact_memory++;
 		compact_nodes();
+		pr_info("compact_memory done.(%d times so far)\n",
+			sysctl_compact_memory);
+	}
+	else
+		proc_dointvec(table, write, buffer, length, ppos);
 
 	return 0;
 }
