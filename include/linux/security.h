@@ -29,6 +29,13 @@
 #include <linux/string.h>
 #include <linux/mm.h>
 #include <linux/bio.h>
+#include <linux/sched.h>
+#ifdef CONFIG_RKP_KDP
+#include <linux/kdp.h>
+#else
+#define RKP_RO_AREA   
+#define security_integrity_current()  0
+#endif
 
 struct linux_binprm;
 struct cred;
@@ -55,6 +62,9 @@ struct xattr;
 struct xfrm_sec_ctx;
 struct mm_struct;
 
+
+
+
 /* If capable should audit the security request */
 #define SECURITY_CAP_NOAUDIT 0
 #define SECURITY_CAP_AUDIT 1
@@ -66,6 +76,7 @@ struct ctl_table;
 struct audit_krule;
 struct user_namespace;
 struct timezone;
+
 
 /* These functions are in security/commoncap.c */
 extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
