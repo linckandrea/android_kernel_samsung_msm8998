@@ -29,10 +29,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	unsigned long committed;
 	long cached;
 	long available;
-	unsigned long pagecache;
-	unsigned long wmark_low = 0;
 	unsigned long pages[NR_LRU_LISTS];
-	struct zone *zone;
 	int lru;
 
 /*
@@ -51,6 +48,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	for (lru = LRU_BASE; lru < NR_LRU_LISTS; lru++)
 		pages[lru] = global_page_state(NR_LRU_BASE + lru);
 
+<<<<<<< HEAD
 	for_each_zone(zone)
 		wmark_low += zone->watermark[WMARK_LOW];
 
@@ -85,6 +83,9 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 
 	if (available < 0)
 		available = 0;
+=======
+	available = si_mem_available();
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 
 	/*
 	 * Tagged format, for easy grepping and expansion.

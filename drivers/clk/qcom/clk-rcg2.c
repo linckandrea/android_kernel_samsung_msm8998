@@ -144,12 +144,17 @@ static int update_config(struct clk_rcg2 *rcg, u32 cfg)
 		udelay(1);
 	}
 
+<<<<<<< HEAD
 	pr_err("CFG_RCGR old frequency configuration 0x%x !\n", cfg);
 
 	WARN_CLK(hw->core, name, count == 0,
 			"rcg didn't update its configuration.");
 
 	return 0;
+=======
+	WARN(1, "%s: rcg didn't update its configuration.", name);
+	return -EBUSY;
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 }
 
 static int clk_rcg2_set_parent(struct clk_hw *hw, u8 index)
@@ -268,8 +273,13 @@ static int _freq_tbl_determine_rate(struct clk_hw *hw,
 
 	clk_flags = clk_hw_get_flags(hw);
 	p = clk_hw_get_parent_by_index(hw, index);
+	if (!p)
+		return -EINVAL;
+
 	if (clk_flags & CLK_SET_RATE_PARENT) {
 		if (f->pre_div) {
+			if (!rate)
+				rate = req->rate;
 			rate /= 2;
 			rate *= f->pre_div + 1;
 		}

@@ -999,9 +999,21 @@ mapped:
 	if (!bit)
 		return;
 
+<<<<<<< HEAD
 	if (device->driver->input_mapped && device->driver->input_mapped(device,
 				hidinput, field, usage, &bit, &max) < 0)
 		goto ignore;
+=======
+	if (device->driver->input_mapped &&
+	    device->driver->input_mapped(device, hidinput, field, usage,
+					 &bit, &max) < 0) {
+		/*
+		 * The driver indicated that no further generic handling
+		 * of the usage is desired.
+		 */
+		return;
+	}
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 
 	set_bit(usage->type, input->evbit);
 
@@ -1060,9 +1072,11 @@ mapped:
 		set_bit(MSC_SCAN, input->mscbit);
 	}
 
-ignore:
 	return;
 
+ignore:
+	usage->type = 0;
+	usage->code = 0;
 }
 
 void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value)

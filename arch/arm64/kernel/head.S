@@ -480,6 +480,7 @@ ENDPROC(__create_page_tables)
 __primary_switched:
 	mov	x28, lr				// preserve LR
 
+<<<<<<< HEAD
 	adr_l	x8, vectors			// load VBAR_EL1 with virtual
 	msr	vbar_el1, x8			// vector table address
 	isb
@@ -504,6 +505,15 @@ __primary_switched:
 	msr	sp_el0, x4			// Save thread_info
 #endif
 
+=======
+1:	cmp	x6, x7
+	b.hs	2f
+	str	xzr, [x6], #8			// Clear BSS
+	b	1b
+2:
+	adrp	x4, initial_sp
+	add	sp, x4, :lo12:initial_sp
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	str_l	x21, __fdt_pointer, x5		// Save FDT pointer
 
 	ldr_l	x4, kimage_vaddr		// Save the offset between

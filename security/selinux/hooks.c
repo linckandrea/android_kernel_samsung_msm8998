@@ -2193,6 +2193,7 @@ static inline u32 open_file_to_av(struct file *file)
 
 static int selinux_binder_set_context_mgr(const struct cred *mgr)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_RKP_KDP
 	int rc;
 
@@ -2200,12 +2201,18 @@ static int selinux_binder_set_context_mgr(const struct cred *mgr)
 		return rc;
 #endif  /* CONFIG_RKP_KDP */
 
+=======
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	return avc_has_perm(current_sid(), cred_sid(mgr), SECCLASS_BINDER,
 			    BINDER__SET_CONTEXT_MGR, NULL);
 }
 
 static int selinux_binder_transaction(const struct cred *from,
+<<<<<<< HEAD
 					const struct cred *to)
+=======
+				      const struct cred *to)
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 {
 	u32 mysid = current_sid();
 	u32 fromsid = cred_sid(from);
@@ -2227,6 +2234,7 @@ static int selinux_binder_transaction(const struct cred *from,
 }
 
 static int selinux_binder_transfer_binder(const struct cred *from,
+<<<<<<< HEAD
 					const struct cred *to)
 {
 #ifdef CONFIG_RKP_KDP
@@ -2237,6 +2245,12 @@ static int selinux_binder_transfer_binder(const struct cred *from,
 #endif  /* CONFIG_RKP_KDP */
 	return avc_has_perm(cred_sid(from), cred_sid(to),
 				SECCLASS_BINDER, BINDER__TRANSFER,
+=======
+					  const struct cred *to)
+{
+	return avc_has_perm(cred_sid(from), cred_sid(to),
+			    SECCLASS_BINDER, BINDER__TRANSFER,
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 			    NULL);
 }
 
@@ -5977,7 +5991,7 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
 	struct common_audit_data ad;
 	struct lsm_network_audit net = {0,};
 	char *addrp;
-	u8 proto;
+	u8 proto = 0;
 
 	if (sk == NULL)
 		return NF_ACCEPT;

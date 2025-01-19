@@ -3,7 +3,11 @@
 generic-y += clkdev.h
 generic-y += cputime.h
 generic-y += exec.h
+<<<<<<< HEAD
 generic-y += hash.h
+=======
+generic-y += export.h
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 generic-y += irq_work.h
 generic-y += mcs_spinlock.h
 generic-y += mm-arch-hooks.h

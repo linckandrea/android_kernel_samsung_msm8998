@@ -1199,17 +1199,27 @@ emul:
 			if (!cpu_has_mips_r6 || delay_slot(xcp))
 				return SIGILL;
 
+<<<<<<< HEAD
 			likely = 0;
 			cond = 0;
+=======
+			cond = likely = 0;
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 			fpr = &current->thread.fpu.fpr[MIPSInst_RT(ir)];
 			bit0 = get_fpr32(fpr, 0) & 0x1;
 			switch (MIPSInst_RS(ir)) {
 			case bc1eqz_op:
+<<<<<<< HEAD
 				MIPS_FPU_EMU_INC_STATS(bc1eqz);
 				cond = bit0 == 0;
 				break;
 			case bc1nez_op:
 				MIPS_FPU_EMU_INC_STATS(bc1nez);
+=======
+				cond = bit0 == 0;
+				break;
+			case bc1nez_op:
+>>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 				cond = bit0 != 0;
 				break;
 			}
