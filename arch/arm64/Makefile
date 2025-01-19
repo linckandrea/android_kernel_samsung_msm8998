@@ -10,11 +10,7 @@
 #
 # Copyright (C) 1995-2001 by Russell King
 
-ifeq ($(CONFIG_RELOCATABLE_KERNEL), y) 
-LDFLAGS_vmlinux	:=--no-undefined -X -pie -Bsymbolic
-else 
 LDFLAGS_vmlinux	:=--no-undefined -X
-endif 
 CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
 OBJCOPYFLAGS	:=-O binary -R .note -R .note.gnu.build-id -R .comment -S
 GZFLAGS		:=-9
@@ -130,8 +126,7 @@ zinstall install: vmlinux
 PHONY += dtbs dtbs_install
 
 dtbs: prepare scripts
-#	$(Q)$(MAKE) $(build)=$(boot)/dts
-	$(Q)$(MAKE) $(build)=$(boot)/dts/samsung
+	$(Q)$(MAKE) $(build)=$(boot)/dts
 
 dtbs_install:
 	$(Q)$(MAKE) $(dtbinst)=$(boot)/dts

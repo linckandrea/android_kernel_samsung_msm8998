@@ -23,7 +23,6 @@
 #include <linux/poll.h>
 #include <linux/workqueue.h>
 #include <linux/kref.h>
-#include <linux/freezer.h>
 
 /** Max number of pages that can be used in a single read request */
 #define FUSE_MAX_PAGES_PER_REQ 32
@@ -486,9 +485,6 @@ struct fuse_conn {
 
 	/** Maximum write size */
 	unsigned max_write;
-
-	/** Free space reserve size */
-	unsigned reserved_space_mb;
 
 	/** Input queue */
 	struct fuse_iqueue iq;
@@ -972,34 +968,5 @@ int fuse_do_setattr(struct inode *inode, struct iattr *attr,
 		    struct file *file);
 
 void fuse_set_initialized(struct fuse_conn *fc);
-
-#define fuse_wait_event(wq, condition)						\
-({										\
-	freezer_do_not_count();							\
-	wait_event(wq, condition);						\
-	freezer_count();							\
-})
-
-#define fuse_wait_event_killable(wq, condition)					\
-({										\
-	int __ret = 0;								\
-										\
-	freezer_do_not_count();							\
-	__ret = wait_event_killable(wq, condition);				\
-	freezer_count();							\
-										\
-	__ret;									\
-})
-
-#define fuse_wait_event_killable_exclusive(wq, condition)			\
-({										\
-	int __ret = 0;								\
-										\
-	freezer_do_not_count();							\
-	__ret = wait_event_killable_exclusive(wq, condition);			\
-	freezer_count();							\
-										\
-	__ret;									\
-})
 
 #endif /* _FS_FUSE_I_H */

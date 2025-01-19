@@ -55,9 +55,6 @@ struct matrix_keymap_data {
  */
 struct matrix_keypad_platform_data {
 	const struct matrix_keymap_data *keymap_data;
-#ifdef CONFIG_SUPPORT_KEYPAD_LED
-	struct regulator *ledvdd_vreg;
-#endif
 
 	const unsigned int *row_gpios;
 	const unsigned int *col_gpios;
@@ -76,7 +73,6 @@ struct matrix_keypad_platform_data {
 	bool		active_low;
 	bool		wakeup;
 	bool		no_autorepeat;
-	const char 	*project;
 };
 
 int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,

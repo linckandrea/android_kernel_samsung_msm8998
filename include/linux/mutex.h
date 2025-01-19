@@ -64,9 +64,6 @@ struct mutex {
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 	struct lockdep_map	dep_map;
 #endif
-#if defined(CONFIG_MUTEX_SPIN_ON_OWNER)
-	struct task_struct	*owner_backup;
-#endif
 };
 
 /*

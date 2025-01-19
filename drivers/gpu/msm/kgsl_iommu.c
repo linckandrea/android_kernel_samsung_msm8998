@@ -36,9 +36,6 @@
 #include "kgsl_trace.h"
 #include "kgsl_cffdump.h"
 #include "kgsl_pwrctrl.h"
-#if defined(CONFIG_SEC_ABC)
-#include <linux/sti/abc_common.h>
-#endif
 
 #define _IOMMU_PRIV(_mmu) (&((_mmu)->priv.iommu))
 
@@ -140,32 +137,12 @@ static void kgsl_iommu_unmap_globals(struct kgsl_pagetable *pagetable)
 static int kgsl_iommu_map_globals(struct kgsl_pagetable *pagetable)
 {
 	unsigned int i;
-#if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
-	int retry_cnt;
-#endif
 
 	for (i = 0; i < global_pt_count; i++) {
 		if (global_pt_entries[i].memdesc != NULL) {
 			int ret = kgsl_mmu_map(pagetable,
 					global_pt_entries[i].memdesc);
 
-#if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
-			if (!in_interrupt()) {
-				if (ret != 0) {
-					for (retry_cnt = 0; retry_cnt < 62 ; retry_cnt++) {
-						/* To wait free page by memory reclaim*/
-						msleep(16);
-						
-						pr_err("kgsl_mmu_map failed : retry (%d)\n", retry_cnt);
-						ret = kgsl_mmu_map(pagetable,
-						global_pt_entries[i].memdesc);
-
-						if (ret == 0)
-							break;
-					}
-				}
-			}
-#endif
 			if (ret)
 				return ret;
 		}
@@ -293,7 +270,6 @@ static void kgsl_setup_qdss_desc(struct kgsl_device *device)
 		return;
 	}
 
-	spin_lock_init(&gpu_qdss_desc.lock);
 	gpu_qdss_desc.flags = 0;
 	gpu_qdss_desc.priv = 0;
 	gpu_qdss_desc.physaddr = gpu_qdss_entry[0];
@@ -339,7 +315,6 @@ static void kgsl_setup_qtimer_desc(struct kgsl_device *device)
 		return;
 	}
 
-	spin_lock_init(&gpu_qtimer_desc.lock);
 	gpu_qtimer_desc.flags = 0;
 	gpu_qtimer_desc.priv = 0;
 	gpu_qtimer_desc.physaddr = gpu_qtimer_entry[0];
@@ -717,7 +692,7 @@ static void _get_entries(struct kgsl_process_private *private,
 		prev->flags = p->memdesc.flags;
 		prev->priv = p->memdesc.priv;
 		prev->pending_free = p->pending_free;
-		prev->pid = pid_nr(private->pid);
+		prev->pid = private->pid;
 		__kgsl_get_memory_usage(prev);
 	}
 
@@ -727,7 +702,7 @@ static void _get_entries(struct kgsl_process_private *private,
 		next->flags = n->memdesc.flags;
 		next->priv = n->memdesc.priv;
 		next->pending_free = n->pending_free;
-		next->pid = pid_nr(private->pid);
+		next->pid = private->pid;
 		__kgsl_get_memory_usage(next);
 	}
 }
@@ -991,9 +966,6 @@ static int kgsl_iommu_fault_handler(struct iommu_domain *domain,
 	}
 
 	kgsl_context_put(context);
-#if defined(CONFIG_SEC_ABC)
-	sec_abc_send_event("MODULE=gpu_qc@ERROR=gpu_page_fault");
-#endif
 	return ret;
 }
 
@@ -1527,7 +1499,6 @@ static int _setstate_alloc(struct kgsl_device *device,
 {
 	int ret;
 
-	spin_lock_init(&iommu->setstate.lock);
 	ret = kgsl_sharedmem_alloc_contig(device, &iommu->setstate, PAGE_SIZE);
 
 	if (!ret) {
@@ -2418,22 +2389,6 @@ static uint64_t kgsl_iommu_find_svm_region(struct kgsl_pagetable *pagetable,
 	return addr;
 }
 
-static bool iommu_addr_in_svm_ranges(struct kgsl_iommu_pt *pt,
-	u64 gpuaddr, u64 size)
-{
-	if ((gpuaddr >= pt->compat_va_start && gpuaddr < pt->compat_va_end) &&
-		((gpuaddr + size) > pt->compat_va_start &&
-			(gpuaddr + size) <= pt->compat_va_end))
-		return true;
-
-	if ((gpuaddr >= pt->svm_start && gpuaddr < pt->svm_end) &&
-		((gpuaddr + size) > pt->svm_start &&
-			(gpuaddr + size) <= pt->svm_end))
-		return true;
-
-	return false;
-}
-
 static int kgsl_iommu_set_svm_region(struct kgsl_pagetable *pagetable,
 		uint64_t gpuaddr, uint64_t size)
 {
@@ -2441,8 +2396,9 @@ static int kgsl_iommu_set_svm_region(struct kgsl_pagetable *pagetable,
 	struct kgsl_iommu_pt *pt = pagetable->priv;
 	struct rb_node *node;
 
-	/* Make sure the requested address doesn't fall out of SVM range */
-	if (!iommu_addr_in_svm_ranges(pt, gpuaddr, size))
+	/* Make sure the requested address doesn't fall in the global range */
+	if (ADDR_IN_GLOBAL(pagetable->mmu, gpuaddr) ||
+			ADDR_IN_GLOBAL(pagetable->mmu, gpuaddr + size))
 		return -ENOMEM;
 
 	spin_lock(&pagetable->lock);
@@ -2506,11 +2462,6 @@ static int kgsl_iommu_get_gpuaddr(struct kgsl_pagetable *pagetable,
 		goto out;
 	}
 
-	/*
-	 * This path is only called in a non-SVM path with locks so we can be
-	 * sure we aren't racing with anybody so we don't need to worry about
-	 * taking the lock
-	 */
 	ret = _insert_gpuaddr(pagetable, addr, size);
 	if (ret == 0) {
 		memdesc->gpuaddr = addr;

@@ -1024,7 +1024,7 @@ static void f2fs_submit_discard_endio(struct bio *bio)
 	spin_unlock_irqrestore(&dc->lock, flags);
 	bio_put(bio);
 }
-#if 0
+
 /* copied from block/blk-lib.c in 4.10-rc1 */
 static int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
 		sector_t nr_sects, gfp_t gfp_mask, int flags,
@@ -1105,7 +1105,6 @@ static int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
 	*biop = bio;
 	return 0;
 }
-#endif
 
 static void __check_sit_bitmap(struct f2fs_sb_info *sbi,
 				block_t start, block_t end)

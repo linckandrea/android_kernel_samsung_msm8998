@@ -25,7 +25,6 @@
  */
 enum vmid {
 	VMID_HLOS = 0x3,
-	VMID_ADSP =0x6,
 	VMID_CP_TOUCH = 0x8,
 	VMID_CP_BITSTREAM = 0x9,
 	VMID_CP_PIXEL = 0xA,

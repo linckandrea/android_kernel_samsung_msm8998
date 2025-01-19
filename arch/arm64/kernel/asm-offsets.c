@@ -46,9 +46,6 @@ int main(void)
   DEFINE(TI_PREEMPT,		offsetof(struct thread_info, preempt_count));
   DEFINE(TI_ADDR_LIMIT,		offsetof(struct thread_info, addr_limit));
 #endif
-#ifdef CONFIG_RKP_CFP_ROPP
-  DEFINE(TSK_TI_RRK,        offsetof(struct task_struct, thread_info.rrk));
-#endif
 #ifdef CONFIG_ARM64_SW_TTBR0_PAN
   DEFINE(TSK_TI_TTBR0,		offsetof(struct thread_info, ttbr0));
 #endif
@@ -169,4 +166,3 @@ int main(void)
 #endif
   return 0;
 }
-

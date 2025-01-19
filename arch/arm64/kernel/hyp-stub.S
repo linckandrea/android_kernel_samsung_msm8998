@@ -22,6 +22,8 @@
 #include <linux/irqchip/arm-gic-v3.h>
 
 #include <asm/assembler.h>
+#include <asm/kvm_arm.h>
+#include <asm/kvm_asm.h>
 #include <asm/ptrace.h>
 #include <asm/virt.h>
 
@@ -30,11 +32,7 @@
 
 	.align 11
 
-#ifdef CONFIG_RKP_CFP_JOPP
-VECTOR_ENTRY(__hyp_stub_vectors)
-#else
 ENTRY(__hyp_stub_vectors)
-#endif
 	ventry	el2_sync_invalid		// Synchronous EL2t
 	ventry	el2_irq_invalid			// IRQ EL2t
 	ventry	el2_fiq_invalid			// FIQ EL2t
@@ -59,15 +57,26 @@ ENDPROC(__hyp_stub_vectors)
 	.align 11
 
 el1_sync:
-	mrs	x1, esr_el2
-	lsr	x1, x1, #26
-	cmp	x1, #0x16
-	b.ne	2f				// Not an HVC trap
-	cbz	x0, 1f
-	msr	vbar_el2, x0			// Set vbar_el2
-	b	2f
-1:	mrs	x0, vbar_el2			// Return vbar_el2
-2:	eret
+	mrs	x30, esr_el2
+	lsr	x30, x30, #ESR_ELx_EC_SHIFT
+
+	cmp	x30, #ESR_ELx_EC_HVC64
+	b.ne	9f				// Not an HVC trap
+
+	cmp	x0, #HVC_GET_VECTORS
+	b.ne	1f
+	mrs	x0, vbar_el2
+	b	9f
+
+1:	cmp	x0, #HVC_SET_VECTORS
+	b.ne	2f
+	msr	vbar_el2, x1
+	b	9f
+
+	/* Someone called kvm_call_hyp() against the hyp-stub... */
+2:	mov     x0, #ARM_EXCEPTION_HYP_GONE
+
+9:	eret
 ENDPROC(el1_sync)
 
 .macro invalid_vector	label
@@ -107,13 +116,18 @@ ENDPROC(\label)
  */
 
 ENTRY(__hyp_get_vectors)
-	mov	x0, xzr
-	// fall through
-#ifdef CONFIG_RKP_CFP_JOPP
-FALLTHROUGH(__hyp_set_vectors)
-#endif
-ENTRY(__hyp_set_vectors)
+	str	lr, [sp, #-16]!
+	mov	x0, #HVC_GET_VECTORS
 	hvc	#0
+	ldr	lr, [sp], #16
 	ret
 ENDPROC(__hyp_get_vectors)
+
+ENTRY(__hyp_set_vectors)
+	str	lr, [sp, #-16]!
+	mov	x1, x0
+	mov	x0, #HVC_SET_VECTORS
+	hvc	#0
+	ldr	lr, [sp], #16
+	ret
 ENDPROC(__hyp_set_vectors)

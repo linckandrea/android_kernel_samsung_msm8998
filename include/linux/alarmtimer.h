@@ -16,18 +16,11 @@ enum alarmtimer_type {
 enum alarmtimer_restart {
 	ALARMTIMER_NORESTART,
 	ALARMTIMER_RESTART,
-	ALARM_POWEROFF_REALTIME,
 };
 
 
 #define ALARMTIMER_STATE_INACTIVE	0x00
 #define ALARMTIMER_STATE_ENQUEUED	0x01
-#define pr_alarm(debug_level_mask, args...) \
-	do { \
-		if (debug_mask & ANDROID_ALARM_PRINT_##debug_level_mask) { \
-			pr_info(args); \
-		} \
-	} while (0)
 
 /**
  * struct alarm - Alarm timer structure
@@ -55,11 +48,6 @@ void alarm_start_relative(struct alarm *alarm, ktime_t start);
 void alarm_restart(struct alarm *alarm);
 int alarm_try_to_cancel(struct alarm *alarm);
 int alarm_cancel(struct alarm *alarm);
-void set_power_on_alarm(void);
-#ifdef CONFIG_RTC_AUTO_PWRON
-int alarm_set_alarm(char *alarm_data);
-#endif /* CONFIG_AUTO_PWRON */
-void power_on_alarm_init(void);
 
 u64 alarm_forward(struct alarm *alarm, ktime_t now, ktime_t interval);
 u64 alarm_forward_now(struct alarm *alarm, ktime_t interval);

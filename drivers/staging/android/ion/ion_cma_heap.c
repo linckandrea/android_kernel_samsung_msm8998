@@ -28,6 +28,8 @@
 #include "ion.h"
 #include "ion_priv.h"
 
+#define ION_CMA_ALLOCATE_FAILED -1
+
 struct ion_cma_buffer_info {
 	void *cpu_addr;
 	dma_addr_t handle;
@@ -65,7 +67,7 @@ static int ion_cma_allocate(struct ion_heap *heap, struct ion_buffer *buffer,
 
 	info = kzalloc(sizeof(struct ion_cma_buffer_info), GFP_KERNEL);
 	if (!info)
-		return -ENOMEM;
+		return ION_CMA_ALLOCATE_FAILED;
 
 	if (!ION_IS_CACHED(flags))
 		info->cpu_addr = dma_alloc_writecombine(dev, len,
@@ -94,7 +96,7 @@ static int ion_cma_allocate(struct ion_heap *heap, struct ion_buffer *buffer,
 
 err:
 	kfree(info);
-	return -ENOMEM;
+	return ION_CMA_ALLOCATE_FAILED;
 }
 
 static void ion_cma_free(struct ion_buffer *buffer)
@@ -284,7 +286,7 @@ static int ion_secure_cma_allocate(struct ion_heap *heap,
 	if (dest_vm == VMID_CP_SEC_DISPLAY)
 		dest_perms = PERM_READ;
 	else
-	dest_perms = PERM_READ | PERM_WRITE;
+		dest_perms = PERM_READ | PERM_WRITE;
 
 	ret = ion_cma_allocate(heap, buffer, len, align, flags);
 	if (ret) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2002,2008-2017,2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2002,2008-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -129,6 +129,7 @@ static char get_cacheflag(const struct kgsl_memdesc *m)
 	return table[kgsl_memdesc_get_cachemode(m)];
 }
 
+
 static int print_mem_entry(void *data, void *ptr)
 {
 	struct seq_file *s = data;
@@ -148,11 +149,7 @@ static int print_mem_entry(void *data, void *ptr)
 	flags[3] = get_alignflag(m);
 	flags[4] = get_cacheflag(m);
 	flags[5] = kgsl_memdesc_use_cpu_map(m) ? 'p' : '-';
-	/*
-	 * Show Y if at least one vma has this entry
-	 * mapped (could be multiple)
-	 */
-	flags[6] = atomic_read(&entry->map_count) ? 'Y' : 'N';
+	flags[6] = (m->useraddr) ? 'Y' : 'N';
 	flags[7] = kgsl_memdesc_is_secured(m) ?  's' : '-';
 	flags[8] = m->flags & KGSL_MEMFLAGS_SPARSE_PHYS ? 'P' : '-';
 	flags[9] = '\0';
@@ -163,16 +160,12 @@ static int print_mem_entry(void *data, void *ptr)
 		kgsl_get_egl_counts(entry, &egl_surface_count,
 						&egl_image_count);
 
-	seq_printf(s, "%pK %d %16llu %5d %9s %10s %16s %5d %16d %6d %6d",
+	seq_printf(s, "%pK %pK %16llu %5d %9s %10s %16s %5d %16llu %6d %6d",
 			(uint64_t *)(uintptr_t) m->gpuaddr,
-			/*
-			 * Show zero for the useraddr - we can't reliably track
-			 * that value for multiple vmas anyway
-			 */
-			0, m->size, entry->id, flags,
+			(unsigned long *) m->useraddr,
+			m->size, entry->id, flags,
 			memtype_str(usermem_type),
-			usage, (m->sgt ? m->sgt->nents : 0),
-			atomic_read(&entry->map_count),
+			usage, (m->sgt ? m->sgt->nents : 0), m->mapsize,
 			egl_surface_count, egl_image_count);
 
 	if (entry->metadata[0] != 0)
@@ -242,7 +235,7 @@ static int process_mem_seq_show(struct seq_file *s, void *ptr)
 	if (ptr == SEQ_START_TOKEN) {
 		seq_printf(s, "%16s %16s %16s %5s %9s %10s %16s %5s %16s %6s %6s\n",
 			"gpuaddr", "useraddr", "size", "id", "flags", "type",
-			"usage", "sglen", "mapcount", "eglsrf", "eglimg");
+			"usage", "sglen", "mapsize", "eglsrf", "eglimg");
 		return 0;
 	} else
 		return print_mem_entry(s, ptr);
@@ -400,7 +393,7 @@ void kgsl_process_init_debugfs(struct kgsl_process_private *private)
 	unsigned char name[16];
 	struct dentry *dentry;
 
-	snprintf(name, sizeof(name), "%d", pid_nr(private->pid));
+	snprintf(name, sizeof(name), "%d", private->pid);
 
 	private->debug_root = debugfs_create_dir(name, proc_d_debugfs);
 
@@ -420,15 +413,14 @@ void kgsl_process_init_debugfs(struct kgsl_process_private *private)
 	}
 
 	dentry = debugfs_create_file("mem", 0444, private->debug_root,
-		(void *) ((unsigned long) pid_nr(private->pid)),
-		&process_mem_fops);
+		(void *) ((unsigned long) private->pid), &process_mem_fops);
 
 	if (IS_ERR_OR_NULL(dentry))
 		WARN((dentry == NULL),
 			"Unable to create 'mem' file for %s\n", name);
 
 	dentry = debugfs_create_file("sparse_mem", 0444, private->debug_root,
-		(void *) ((unsigned long) pid_nr(private->pid)),
+		(void *) ((unsigned long) private->pid),
 		&process_sparse_mem_fops);
 
 	if (IS_ERR_OR_NULL(dentry))
@@ -436,138 +428,6 @@ void kgsl_process_init_debugfs(struct kgsl_process_private *private)
 			"Unable to create 'sparse_mem' file for %s\n", name);
 
 }
-
-/* TODO: Enable */
-#if 0
-/* #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG) */
-/* #define CONFIG_SAMSUNG_KGSL_DEBUG */
-extern pid_t kgsl_mem_dump_pid;
-
-static int kgsl_mem_debugfs_show(struct seq_file *s, void *unused)
-{
-	struct task_struct *task;
-	struct mm_struct *mm;
-
-	struct kgsl_process_private *private = NULL;
-	struct kgsl_process_private *dump_private = NULL;
-	unsigned long total_vm = 0;
-
-#if defined(CONFIG_SAMSUNG_KGSL_DEBUG) && !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
-	struct kgsl_iommu_pt *pt = NULL;
-	struct vm_area_struct *vma = NULL;
-	unsigned long vma_size = 0;
-	unsigned long last_vm_end = 0;
-	unsigned long biggest_hole = 0, total_hole = 0, hole_size = 0;
-
-	unsigned long kgsl_mem_dump_svm_start = KGSL_IOMMU_SVM_BASE32;
-	unsigned long kgsl_mem_dump_svm_end = KGSL_IOMMU_SVM_END32;
-#endif
-
-
-	mutex_lock(&kgsl_driver.process_mutex);
-
-	list_for_each_entry(private, &kgsl_driver.process_list, list) {
-		if (private->pid == kgsl_mem_dump_pid)
-			dump_private = private;
-	}
-
-	if (kgsl_mem_dump_pid != -EPERM) {
-		task = find_task_by_vpid(kgsl_mem_dump_pid);
-
-		if (!IS_ERR_OR_NULL(task)) {
-			mm = task->mm;
-			if (!IS_ERR_OR_NULL(mm))
-				total_vm = mm->total_vm;
-			else
-				total_vm = 0;
-
-			seq_printf(s, "kgsl_dump_pid : %d pid : %d name : %16s total_vm : 0x%lx\n",
-				kgsl_mem_dump_pid, task->pid, task->comm, total_vm);
-
-#if defined(CONFIG_SAMSUNG_KGSL_DEBUG) && !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
-			if (!IS_ERR_OR_NULL(dump_private)) {
-				if (!IS_ERR_OR_NULL(dump_private->pagetable)) {
-					pt = (struct kgsl_iommu_pt *)(dump_private->pagetable->priv);
-					if (!IS_ERR_OR_NULL(pt)) {
-						kgsl_mem_dump_svm_start = pt->svm_start;
-						kgsl_mem_dump_svm_end = pt->svm_end;
-					}
-				}
-			}
-#endif
-			/* gpu memory dump */
-			if (!IS_ERR_OR_NULL(dump_private)) {
-				s->private = dump_private;
-				process_mem_print(s, NULL);
-			} else
-				seq_printf(s, "pid %d is not attached to process list\n", task->pid);
-		} else
-			seq_printf(s, "kgsl_dump_pid : %d task was killed at gpu dump\n", kgsl_mem_dump_pid);
-	} else
-		seq_printf(s, "kgsl dump pid is not exist(normal operation)\n");
-
-	mutex_unlock(&kgsl_driver.process_mutex);
-
-#if defined(CONFIG_SAMSUNG_KGSL_DEBUG) && !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
-	/* userspace vmlist dump */
-	if (kgsl_mem_dump_pid != -EPERM) {
-		task = find_task_by_vpid(kgsl_mem_dump_pid);
-
-		if (!IS_ERR_OR_NULL(task)) {
-			seq_printf(s, "\n%-21s %-18s %-11s %s\n",
-				"vm_start", "vm_end", "vm_flags", "size");
-
-			for (vma = task->mm->mmap; vma; vma = vma->vm_next) {
-
-				/* To check iommu address range */
-				if ((vma->vm_start > kgsl_mem_dump_svm_end) || (vma->vm_end > kgsl_mem_dump_svm_end))
-					break;
-
-				vma_size = vma->vm_end - vma->vm_start;
-
-				if (last_vm_end && (last_vm_end != vma->vm_start)) {
-					hole_size = (vma->vm_start - last_vm_end) >> 10;
-					seq_printf(s, "(hole) (0x%lx %lu KB)\n", hole_size, hole_size);
-
-					if (hole_size > biggest_hole)
-						biggest_hole = hole_size;
-
-					total_hole += hole_size;
-				} else
-					seq_printf(s, "0x%-16lx -- 0x%-16lx 0x%-8lx (%7lu KB)\n",
-						vma->vm_start, vma->vm_end, vma->vm_flags, vma_size >> 10);
-
-				last_vm_end = vma->vm_end;
-
-				if (vma_size <= 0)
-					break;
-			}
-
-			seq_printf(s, "Biggest hole(from 0x%lx to 0x%lx) is 0x%lx (%lu KB)\n"
-					"Total hole is 0x%lx (%lu KB)\n",
-					kgsl_mem_dump_svm_start, kgsl_mem_dump_svm_end,
-					biggest_hole, biggest_hole,
-					total_hole, total_hole);
-		} else
-			seq_printf(s, "kgsl_dump_pid : %d task was killed at vmlist dump\n", kgsl_mem_dump_pid);
-	}
-#endif
-
-	return 0;
-}
-
-static int kgsl_mem_debugfs_open(struct inode *inode, struct file *file)
-{
-	return single_open(file, kgsl_mem_debugfs_show, file);
-}
-
-static const struct file_operations kgsl_mem_debugfs_fops = {
-	.open           = kgsl_mem_debugfs_open,
-	.read           = seq_read,
-	.llseek         = seq_lseek,
-	.release        = single_release,
-};
-#endif
 
 void kgsl_core_debugfs_init(void)
 {
@@ -584,11 +444,6 @@ void kgsl_core_debugfs_init(void)
 		&_strict_fops);
 
 	proc_d_debugfs = debugfs_create_dir("proc", kgsl_debugfs_dir);
-/* TODO: Enalbe */
-#if 0
-/* #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG) */
-	debugfs_create_file("kgsl_mem", S_IRUGO, kgsl_debugfs_dir, NULL, &kgsl_mem_debugfs_fops);
-#endif
 }
 
 void kgsl_core_debugfs_close(void)

@@ -395,7 +395,6 @@ static void dump_header(struct oom_control *oc, struct task_struct *p,
 		mem_cgroup_print_oom_info(memcg, p);
 	else
 		show_mem(SHOW_MEM_FILTER_NODES);
-
 	if (sysctl_oom_dump_tasks)
 		dump_tasks(memcg, oc->nodemask);
 }

@@ -5327,7 +5327,7 @@ void glink_core_rx_put_pkt_ctx(struct glink_transport_if *if_ptr,
 		return;
 	}
 
-	GLINK_INFO_PERF_CH(ctx, "%s: QMCK: L[%u]: data[%p] size[%zu]\n",
+	GLINK_PERF_CH(ctx, "%s: L[%u]: data[%p] size[%zu]\n",
 		__func__, intent_ptr->id,
 		intent_ptr->data ? intent_ptr->data : intent_ptr->iovec,
 		intent_ptr->write_offset);
@@ -5349,13 +5349,11 @@ void glink_core_rx_put_pkt_ctx(struct glink_transport_if *if_ptr,
 
 	ch_set_local_rx_intent_notified(ctx, intent_ptr);
 	if (ctx->notify_rx && (intent_ptr->data || intent_ptr->bounce_buf)) {
-		GLINK_INFO_PERF_CH(ctx, "%s QMCK: now calling notify_rx, intent:%p\n", __func__, intent_ptr);
 		ctx->notify_rx(ctx, ctx->user_priv, intent_ptr->pkt_priv,
 			       intent_ptr->data ?
 				intent_ptr->data : intent_ptr->bounce_buf,
 			       intent_ptr->pkt_size);
 	} else if (ctx->notify_rxv) {
-		GLINK_INFO_PERF_CH(ctx, "%s QMCK: now calling notify_rxv, intent:%p\n", __func__, intent_ptr);
 		ctx->notify_rxv(ctx, ctx->user_priv, intent_ptr->pkt_priv,
 				intent_ptr->iovec, intent_ptr->pkt_size,
 				intent_ptr->vprovider, intent_ptr->pprovider);
@@ -6231,15 +6229,12 @@ int glink_get_ch_lintents_queued(struct channel_ctx *ch_ctx)
 {
 	struct glink_core_rx_intent *intent;
 	int ilrx_count = 0;
-	unsigned long flags;
 
 	if (ch_ctx == NULL)
 		return -EINVAL;
 
-	spin_lock_irqsave(&ch_ctx->local_rx_intent_lst_lock_lhc1, flags);
 	list_for_each_entry(intent, &ch_ctx->local_rx_intent_list, list)
 		ilrx_count++;
-	spin_unlock_irqrestore(&ch_ctx->local_rx_intent_lst_lock_lhc1, flags);
 
 	return ilrx_count;
 }
@@ -6256,15 +6251,12 @@ int glink_get_ch_rintents_queued(struct channel_ctx *ch_ctx)
 {
 	struct glink_core_rx_intent *intent;
 	int irrx_count = 0;
-	unsigned long flags;
 
 	if (ch_ctx == NULL)
 		return -EINVAL;
 
-	spin_lock_irqsave(&ch_ctx->rmt_rx_intent_lst_lock_lhc2, flags);
 	list_for_each_entry(intent, &ch_ctx->rmt_rx_intent_list, list)
 		irrx_count++;
-	spin_unlock_irqrestore(&ch_ctx->rmt_rx_intent_lst_lock_lhc2, flags);
 
 	return irrx_count;
 }

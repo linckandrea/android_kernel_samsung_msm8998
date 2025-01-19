@@ -68,10 +68,6 @@ struct aio_ring {
 
 #define AIO_RING_PAGES	8
 
-#ifdef CONFIG_RKP_NS_PROT
-void rkp_set_mnt_flags(struct vfsmount *mnt, int flags);
-#endif
-
 struct kioctx_table {
 	struct rcu_head		rcu;
 	unsigned		nr;
@@ -267,11 +263,8 @@ static int __init aio_setup(void)
 	aio_mnt = kern_mount(&aio_fs);
 	if (IS_ERR(aio_mnt))
 		panic("Failed to create aio fs mount.");
-#ifdef CONFIG_RKP_NS_PROT
-	rkp_set_mnt_flags(aio_mnt, MNT_NOEXEC);
-#else
 	aio_mnt->mnt_flags |= MNT_NOEXEC;
-#endif
+
 	kiocb_cachep = KMEM_CACHE(aio_kiocb, SLAB_HWCACHE_ALIGN|SLAB_PANIC);
 	kioctx_cachep = KMEM_CACHE(kioctx,SLAB_HWCACHE_ALIGN|SLAB_PANIC);
 

@@ -69,12 +69,6 @@
 
 #include "audit.h"
 
-// [ SEC_SELINUX_PORTING_QUALCOMM
-#ifdef CONFIG_PROC_AVC 
-#include <linux/proc_avc.h>
-#endif
-// ] SEC_SELINUX_PORTING_QUALCOMM
-
 /* No auditing will take place until audit_initialized == AUDIT_INITIALIZED.
  * (Initialization happens after skb_init is called.) */
 #define AUDIT_DISABLED		-1
@@ -399,18 +393,11 @@ static void audit_printk_skb(struct sk_buff *skb)
 	struct nlmsghdr *nlh = nlmsg_hdr(skb);
 	char *data = nlmsg_data(nlh);
 
-// [ SEC_SELINUX_PORTING_QUALCOMM
-#ifdef CONFIG_PROC_AVC
-	if (nlh->nlmsg_type != AUDIT_EOE && nlh->nlmsg_type != AUDIT_NETFILTER_CFG) {
-		sec_avc_log("%s\n", data);
-#else
 	if (nlh->nlmsg_type != AUDIT_EOE) {
 		if (printk_ratelimit())
 			pr_notice("type=%d %s\n", nlh->nlmsg_type, data);
 		else
 			audit_log_lost("printk limit exceeded");
-#endif
-// ] SEC_SELINUX_PORTING_QUALCOMM
 	}
 
 	audit_hold_skb(skb);
@@ -449,20 +436,9 @@ restart:
 		}
 		/* we might get lucky and get this in the next auditd */
 		audit_hold_skb(skb);
-	} else{
-// [ SEC_SELINUX_PORTING_QUALCOMM
-#ifdef CONFIG_PROC_AVC
-		struct nlmsghdr *nlh = nlmsg_hdr(skb);
-		char *data = nlmsg_data(nlh);
-	
-		if (nlh->nlmsg_type != AUDIT_EOE && nlh->nlmsg_type != AUDIT_NETFILTER_CFG) {
-			sec_avc_log("%s\n", data);
-		}
-#endif
-// ] SEC_SELINUX_PORTING_QUALCOMM
+	} else
 		/* drop the extra reference if sent ok */
 		consume_skb(skb);
-	}
 }
 
 /*
@@ -516,20 +492,18 @@ static void flush_hold_queue(void)
 {
 	struct sk_buff *skb;
 
-// [ SEC_SELINUX_PORTING_COMMON
-	if (!audit_default || !audit_pid || !audit_sock)
+	if (!audit_default || !audit_pid)
 		return;
-// ] SEC_SELINUX_PORTING_COMMON
+
 	skb = skb_dequeue(&audit_skb_hold_queue);
 	if (likely(!skb))
 		return;
 
-// [ SEC_SELINUX_PORTING_COMMON
-	while (skb && audit_pid && audit_sock) {
+	while (skb && audit_pid) {
 		kauditd_send_skb(skb);
 		skb = skb_dequeue(&audit_skb_hold_queue);
 	}
-// ] SEC_SELINUX_PORTING_COMMON
+
 	/*
 	 * if auditd just disappeared but we
 	 * dequeued an skb we need to drop ref
@@ -551,10 +525,8 @@ static int kauditd_thread(void *dummy)
 		if (skb) {
 			if (skb_queue_len(&audit_skb_queue) <= audit_backlog_limit)
 				wake_up(&audit_backlog_wait);
-// [ SEC_SELINUX_PORTING_COMMON
-			if (audit_pid && audit_sock)
+			if (audit_pid)
 				kauditd_send_skb(skb);
-// ] SEC_SELINUX_PORTING_COMMON
 			else
 				audit_printk_skb(skb);
 			continue;

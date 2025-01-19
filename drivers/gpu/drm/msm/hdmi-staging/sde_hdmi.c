@@ -596,6 +596,28 @@ static void sde_hdmi_tx_hdcp_cb(void *ptr, enum sde_hdcp_states status)
 	queue_delayed_work(hdmi->workq, &hdmi_ctrl->hdcp_cb_work, HZ/4);
 }
 
+static void sde_hdmi_tx_set_avmute(void *ptr)
+{
+	struct sde_hdmi *hdmi_ctrl = (struct sde_hdmi *)ptr;
+	struct hdmi *hdmi;
+
+	if (!hdmi_ctrl) {
+		DEV_ERR("%s: invalid input\n", __func__);
+		return;
+	}
+
+	hdmi = hdmi_ctrl->ctrl.ctrl;
+
+	/*
+	 * When we try to continuously re-auth there
+	 * is no need to enforce avmute for clear
+	 * content. Hence check the current encryption level
+	 * before enforcing avmute on authentication failure
+	 */
+	if (sde_hdmi_tx_is_encryption_set(hdmi_ctrl))
+		sde_hdmi_config_avmute(hdmi, true);
+}
+
 void sde_hdmi_hdcp_off(struct sde_hdmi *hdmi_ctrl)
 {
 
@@ -2473,6 +2495,7 @@ static int _sde_hdmi_init_hdcp(struct sde_hdmi *hdmi_ctrl)
 	hdcp_init_data.mutex         = &hdmi_ctrl->hdcp_mutex;
 	hdcp_init_data.workq         = hdmi->workq;
 	hdcp_init_data.notify_status = sde_hdmi_tx_hdcp_cb;
+	hdcp_init_data.avmute_sink   = sde_hdmi_tx_set_avmute;
 	hdcp_init_data.cb_data       = (void *)hdmi_ctrl;
 	hdcp_init_data.hdmi_tx_ver   = hdmi_ctrl->hdmi_tx_major_version;
 	hdcp_init_data.sec_access    = true;

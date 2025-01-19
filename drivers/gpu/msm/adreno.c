@@ -1,4 +1,4 @@
-/* Copyright (c) 2002,2007-2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2002,2007-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -41,9 +41,6 @@
 /* Include the master list of GPU cores that are supported */
 #include "adreno-gpulist.h"
 #include "adreno_dispatch.h"
-#if defined(CONFIG_SEC_ABC)
-#include <linux/sti/abc_common.h>
-#endif
 
 #include <soc/qcom/boot_stats.h>
 
@@ -495,19 +492,6 @@ static const struct input_device_id adreno_input_ids[] = {
 				BIT_MASK(ABS_MT_POSITION_X) |
 				BIT_MASK(ABS_MT_POSITION_Y) },
 	},
-#if defined(CONFIG_INPUT_WACOM)
-	/*
-	*	For S-pen input_event.
-	*	Request from graphics team(biam.lee)
-	*/
-	{
-		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-		.evbit = { BIT_MASK(EV_ABS) },
-		.absbit = { [BIT_WORD(ABS_X)] =
-				BIT_MASK(ABS_TILT_X) |
-				BIT_MASK(ABS_TILT_Y)},
-	},
-#endif
 	{ },
 };
 
@@ -580,9 +564,6 @@ void adreno_hang_int_callback(struct adreno_device *adreno_dev, int bit)
 {
 	KGSL_DRV_CRIT_RATELIMIT(KGSL_DEVICE(adreno_dev),
 			"MISC: GPU hang detected\n");
-#if defined(CONFIG_SEC_ABC)
-	sec_abc_send_event("MODULE=gpu_qc@ERROR=gpu_fault");
-#endif	
 	adreno_irqctrl(adreno_dev, 0);
 
 	/* Trigger a fault in the dispatcher - this will effect a restart */
@@ -2844,19 +2825,6 @@ static void adreno_suspend_device(struct kgsl_device *device,
 static void adreno_resume_device(struct kgsl_device *device)
 {
 	adreno_dispatcher_unhalt(device);
-}
-
-u32 adreno_get_ucode_version(const u32 *data)
-{
-	u32 version;
-
-	version = data[1];
-
-	if ((version & 0xf) != 0xa)
-		return version;
-
-	version &= ~0xfff;
-	return  version | ((data[3] & 0xfff000) >> 12);
 }
 
 static const struct kgsl_functable adreno_functable = {

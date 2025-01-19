@@ -12,8 +12,6 @@
  */
 
 #include <linux/slab.h>
-#include <linux/mm.h>
-#include <linux/vmalloc.h>
 #include <linux/uaccess.h>
 #include <linux/module.h>
 #include <linux/fs.h>
@@ -79,31 +77,20 @@ static ssize_t debug_read_helper(struct file *file, char __user *buff,
 	struct ipc_log_context *ilctxt = file->private_data;
 	char *buffer;
 	int bsize;
-	gfp_t gfp = GFP_KERNEL;
 
-	if (count > (MAX_ORDER_NR_PAGES << PAGE_SHIFT)) {
-		pr_err("%s: error count %lu bytes is too big, max: %lu bytes\n",
-			__func__, (unsigned long)count,
-			(unsigned long)MAX_ORDER_NR_PAGES << PAGE_SHIFT);
-		return -ENOMEM;
-	}
-	if (count > PAGE_SIZE)
-		gfp |= __GFP_NORETRY | __GFP_NOWARN;
-	buffer = kmalloc(count, gfp);
-	if (!buffer && count > PAGE_SIZE)
-		buffer = vmalloc(count);
+	buffer = kmalloc(count, GFP_KERNEL);
 	if (!buffer)
 		return -ENOMEM;
 
 	bsize = debug_log(ilctxt, buffer, count, cont);
 	if (bsize > 0) {
 		if (copy_to_user(buff, buffer, bsize)) {
-			kvfree(buffer);
+			kfree(buffer);
 			return -EFAULT;
 		}
 		*ppos += bsize;
 	}
-	kvfree(buffer);
+	kfree(buffer);
 	return bsize;
 }
 

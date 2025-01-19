@@ -253,7 +253,6 @@ struct fuse_file_lock {
 #define FUSE_WRITEBACK_CACHE	(1 << 16)
 #define FUSE_NO_OPEN_SUPPORT	(1 << 17)
 #define FUSE_PASSTHROUGH	(1 << 18)
-#define FUSE_RESERVE_SPACE	(1 << 30)
 
 /**
  * CUSE INIT request/reply flags
@@ -592,8 +591,7 @@ struct fuse_init_out {
 	uint16_t	congestion_threshold;
 	uint32_t	max_write;
 	uint32_t	time_gran;
-	uint32_t	reserved_space_mb;
-	uint32_t	unused[8];
+	uint32_t	unused[9];
 };
 
 #define CUSE_INIT_INFO_MAX 4096

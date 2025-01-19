@@ -1,1 +1,0 @@
-obj-$(CONFIG_TOUCHSCREEN_SEC_TS_DUAL)	+= sec_ts.o sec_ts_fw.o sec_ts_fn.o

@@ -1990,10 +1990,6 @@ int uvc_ctrl_add_mapping(struct uvc_video_chain *chain,
 	}
 	if (!found)
 		return -ENOENT;
-	
-	if (ctrl->info.size < mapping->size)
-		return -EINVAL;
-	
 
 	if (ctrl->info.size < mapping->size)
 		return -EINVAL;

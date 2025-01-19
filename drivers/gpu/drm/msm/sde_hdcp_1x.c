@@ -975,8 +975,8 @@ static int sde_hdcp_1x_authentication_part1(struct sde_hdcp_1x *hdcp)
 
 	rc = sde_hdcp_1x_revoked_rcv_chk(hdcp);
 	if (rc) {
-		pr_err("receiver failed SRM check\n");
 		rc = -SDE_HDCP_SRM_FAIL;
+		goto error;
 	}
 
 	rc = sde_hdcp_1x_send_an_aksv_to_sink(hdcp);
@@ -1305,8 +1305,8 @@ static int sde_hdcp_1x_authentication_part2(struct sde_hdcp_1x *hdcp)
 
 	rc = sde_hdcp_1x_revoked_rpt_chk(hdcp);
 	if (rc) {
-		pr_err("repeater failed SRM check\n");
 		rc = -SDE_HDCP_SRM_FAIL;
+		goto error;
 	}
 
 	do {
@@ -1359,6 +1359,9 @@ static void sde_hdcp_1x_notify_topology(void)
 
 static void sde_hdcp_1x_update_auth_status(struct sde_hdcp_1x *hdcp)
 {
+	if (sde_hdcp_1x_state(HDCP_STATE_AUTH_FAIL))
+		hdcp->init_data.avmute_sink(hdcp->init_data.cb_data);
+
 	if (sde_hdcp_1x_state(HDCP_STATE_AUTHENTICATED)) {
 		sde_hdcp_1x_cache_topology(hdcp);
 		sde_hdcp_1x_notify_topology();
@@ -1853,7 +1856,8 @@ void *sde_hdcp_1x_init(struct sde_hdcp_init_data *init_data)
 
 	if (!init_data || !init_data->core_io || !init_data->qfprom_io ||
 		!init_data->mutex || !init_data->notify_status ||
-		!init_data->workq || !init_data->cb_data) {
+		!init_data->workq || !init_data->cb_data ||
+		!init_data->avmute_sink) {
 		pr_err("invalid input\n");
 		goto error;
 	}

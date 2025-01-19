@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -342,10 +342,8 @@ static int msm_fd_vbif_error_handler(void *handle, uint32_t error)
 	struct msm_fd_buffer *active_buf;
 	int ret;
 
-	if (NULL == handle) {
-		pr_err("FD Ctx is null, Cannot recover\n");
+	if (handle == NULL)
 		return 0;
-	}
 
 	ctx = (struct fd_ctx *)handle;
 	fd = (struct msm_fd_device *)ctx->fd_device;
@@ -1473,6 +1471,7 @@ static struct platform_driver fd_driver = {
 		.name = MSM_FD_DRV_NAME,
 		.owner = THIS_MODULE,
 		.of_match_table = msm_fd_dt_match,
+		.suppress_bind_attrs = true,
 	},
 };
 

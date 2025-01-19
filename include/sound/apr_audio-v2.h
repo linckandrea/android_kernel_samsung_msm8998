@@ -4848,11 +4848,8 @@ struct adm_matrix_mute_params {
 /* Left side direct channel. */
 #define PCM_CHANNEL_LSD  33
 
-/* Right side direct channel. Update PCM_MAX_CHMAP_ID when this list is extended. */
+/* Right side direct channel. */
 #define PCM_CHANNEL_RSD  34
-
-/* Max valid channel map index */
-#define PCM_MAX_CHMAP_ID PCM_CHANNEL_RSD
 
 #define PCM_FORMAT_MAX_NUM_CHANNEL 8
 
@@ -10653,7 +10650,7 @@ struct afe_clk_set {
 	 * for enable and disable clock.
 	 *	"clk_freq_in_hz", "clk_attri", and "clk_root"
 	 *	are ignored in disable clock case.
-	 *	@values
+	 *	@values 
 	 *	- 0 -- Disabled
 	 *	- 1 -- Enabled  @tablebulletend
 	 */
