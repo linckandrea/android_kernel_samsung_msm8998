@@ -200,10 +200,7 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
  * Concatenate usage which defines 16 bits or less with the
  * currently defined usage page to form a 32 bit usage
  */
-<<<<<<< HEAD
-=======
 
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 static void complete_usage(struct hid_parser *parser, unsigned int index)
 {
 	parser->local.usage[index] &= 0xFFFF;
@@ -222,20 +219,14 @@ static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
 		return -1;
 	}
 	parser->local.usage[parser->local.usage_index] = usage;
-<<<<<<< HEAD
-=======
 
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	/*
 	 * If Usage item only includes usage id, concatenate it with
 	 * currently defined usage page
 	 */
 	if (size <= 2)
 		complete_usage(parser, parser->local.usage_index);
-<<<<<<< HEAD
-=======
 
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	parser->local.usage_size[parser->local.usage_index] = size;
 	parser->local.collection_index[parser->local.usage_index] =
 		parser->collection_stack_ptr ?
@@ -277,19 +268,13 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
 
 	offset = report->size;
 	report->size += parser->global.report_size * parser->global.report_count;
-<<<<<<< HEAD
-=======
 
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	/* Total size check: Allow for possible report index byte */
 	if (report->size > (HID_MAX_BUFFER_SIZE - 1) << 3) {
 		hid_err(parser->device, "report is too long\n");
 		return -1;
 	}
-<<<<<<< HEAD
-=======
 
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	if (!parser->local.usage_index) /* Ignore padding fields */
 		return 0;
 
@@ -571,18 +556,12 @@ static void hid_concatenate_last_usage_page(struct hid_parser *parser)
 	int i;
 	unsigned int usage_page;
 	unsigned int current_page;
-<<<<<<< HEAD
-	if (!parser->local.usage_index)
-		return;
-	usage_page = parser->global.usage_page;
-=======
 
 	if (!parser->local.usage_index)
 		return;
 
 	usage_page = parser->global.usage_page;
 
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	/*
 	 * Concatenate usage page again only if last declared Usage Page
 	 * has not been already used in previous usages concatenation
@@ -591,17 +570,11 @@ static void hid_concatenate_last_usage_page(struct hid_parser *parser)
 		if (parser->local.usage_size[i] > 2)
 			/* Ignore extended usages */
 			continue;
-<<<<<<< HEAD
-		current_page = parser->local.usage[i] >> 16;
-		if (current_page == usage_page)
-			break;
-=======
 
 		current_page = parser->local.usage[i] >> 16;
 		if (current_page == usage_page)
 			break;
 
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 		complete_usage(parser, i);
 	}
 }
@@ -796,10 +769,7 @@ static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
 	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
 	    parser->global.report_size == 8)
 		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
-<<<<<<< HEAD
-=======
 
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	if (usage == 0xff0000c6 && parser->global.report_count == 1 &&
 	    parser->global.report_size == 8)
 		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;

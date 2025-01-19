@@ -569,10 +569,7 @@ struct binder_proc {
 	int pid;
 	struct task_struct *tsk;
 	struct files_struct *files;
-<<<<<<< HEAD
 	struct mutex files_lock;
-=======
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	const struct cred *cred;
 	struct hlist_node deferred_work_node;
 	int deferred_work;

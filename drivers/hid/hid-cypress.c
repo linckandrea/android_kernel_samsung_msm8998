@@ -37,15 +37,6 @@ static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
 {
 	unsigned int i;
 
-<<<<<<< HEAD
-	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
-		return rdesc;
- 
-	if (*rsize < 4)
-		return rdesc;
-
-=======
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	if (*rsize < 4)
 		return rdesc;
 

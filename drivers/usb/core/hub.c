@@ -3465,12 +3465,9 @@ int usb_port_resume(struct usb_device *udev, pm_message_t msg)
 		 * sequence.
 		 */
 		status = hub_port_status(hub, port1, &portstatus, &portchange);
-<<<<<<< HEAD
 
 		/* TRSMRCY = 10 msec */
 		usleep_range(10000, 10500);
-=======
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 	}
 
  SuspendCleared:
@@ -4816,15 +4813,12 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
 	struct usb_port *port_dev = hub->ports[port1 - 1];
 	struct usb_device *udev = port_dev->child;
 	static int unreliable_port = -1;
-<<<<<<< HEAD
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
 	dev_info (&port_dev->dev,
 		"port %d, status %04x, change %04x, %s\n",
 		port1, portstatus, portchange, portspeed(hub, portstatus));
 #endif
-=======
 	bool retry_locked;
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 
 	/* Disconnect any existing devices under this port */
 	if (udev) {

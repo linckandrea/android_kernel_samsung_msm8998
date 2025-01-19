@@ -952,17 +952,10 @@ void smp_send_stop(void)
 
 	/* Wait up to one second for other CPUs to stop */
 	timeout = USEC_PER_SEC;
-<<<<<<< HEAD
-	while (num_active_cpus() > 1 && timeout--)
-		udelay(1);
-
-	if (num_active_cpus() > 1)
-=======
 	while (num_other_online_cpus() && timeout--)
 		udelay(1);
 
 	if (num_other_online_cpus())
->>>>>>> a09b2d8f61ea0e9ae735c400399b97966a9418d6
 		pr_warning("SMP: failed to stop secondary CPUs\n");
 }
 
