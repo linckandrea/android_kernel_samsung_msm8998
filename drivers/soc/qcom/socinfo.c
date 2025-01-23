@@ -1211,7 +1211,7 @@ static struct device_attribute select_image =
 static struct device_attribute images =
 	__ATTR(images, S_IRUGO, msm_get_images, NULL);
 
-static void * __init setup_dummy_socinfo(void)
+static void setup_dummy_socinfo(void)
 {
 	if (early_machine_is_apq8084()) {
 		dummy_socinfo.id = 178;
