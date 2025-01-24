@@ -54,9 +54,11 @@
 #include <net/netfilter/nf_nat_core.h>
 #include <net/netfilter/nf_nat_helper.h>
 
+#ifdef CONFIG_KNOX_NCM
 /* START_OF_KNOX_NPA */
 #include <net/ncm.h>
 /* END_OF_KNOX_NPA */
+#endif
 
 #define NF_CONNTRACK_VERSION	"0.5.0"
 
@@ -289,12 +291,14 @@ static void nf_ct_add_to_dying_list(struct nf_conn *ct)
 {
 	struct ct_pcpu *pcpu;
 
+#ifdef CONFIG_KNOX_NCM
 	/* START_OF_KNOX_NPA */
 	del_timer(&ct->npa_timeout);
 	if ( (check_ncm_flag()) && (ct != NULL) && (atomic_read(&ct->startFlow)) ) {
 		knox_collect_conntrack_data(ct, NCM_FLOW_TYPE_CLOSE, 10);
 	}
 	/* END_OF_KNOX_NPA */
+#endif
 
 	/* add this conntrack to the (per cpu) dying list */
 	ct->cpu = smp_processor_id();
@@ -465,6 +469,7 @@ bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
 }
 EXPORT_SYMBOL_GPL(nf_ct_delete);
 
+#ifdef CONFIG_KNOX_NCM
 /* START_OF_KNOX_NPA */
 /* Use this function only if struct nf_conn->timeout is of type struct timer_list */
 static void death_by_timeout_npa(unsigned long ul_conntrack)
@@ -485,14 +490,17 @@ static void death_by_timeout_npa(unsigned long ul_conntrack)
 	return;
 }
 /* END_OF_KNOX_NPA */
+#endif
 
 static void death_by_timeout(unsigned long ul_conntrack)
 {
+#ifdef CONFIG_KNOX_NCM
 	/* START_OF_KNOX_NPA */
 	struct nf_conn *tmp = (struct nf_conn *)ul_conntrack;
 	atomic_set(&tmp->intermediateFlow, 0);
 	del_timer(&tmp->npa_timeout);
 	/* END_OF_KNOX_NPA */
+#endif
 	nf_ct_delete((struct nf_conn *)ul_conntrack, 0, 0);
 }
 
@@ -929,6 +937,7 @@ __nf_conntrack_alloc(struct net *net,
 		goto out;
 
 	spin_lock_init(&ct->lock);
+#ifdef CONFIG_KNOX_NCM
 	/* START_OF_KNOX_NPA */
 	/* initialize the conntrack structure members when memory is allocated */
 	if (ct != NULL) {
@@ -951,6 +960,7 @@ __nf_conntrack_alloc(struct net *net,
 		atomic_set(&ct->intermediateFlow, 0);
 	}
 	/* END_OF_KNOX_NPA */
+#endif
 	ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple = *orig;
 	ct->tuplehash[IP_CT_DIR_ORIGINAL].hnnode.pprev = NULL;
 	ct->tuplehash[IP_CT_DIR_REPLY].tuple = *repl;
