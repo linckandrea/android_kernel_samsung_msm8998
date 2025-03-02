@@ -25,6 +25,6 @@ make O=out ARCH=arm64 gts4lwifi_eur_open_defconfig
 echo
 echo "let's build"
 echo 
-make O=out -j$(nproc --all)
+make O=out -j$(nproc --all) CONFIG_DEBUG_SECTION_MISMATCH=y
 
 echo THE END
