@@ -1,6 +1,7 @@
 echo
 echo "Setup"
 echo
+git submodule update --init --recursive
 branch=$(git symbolic-ref --short HEAD)
 branch_name=$(git rev-parse --abbrev-ref HEAD)
 last_commit=$(git rev-parse --verify --short=8 HEAD)
