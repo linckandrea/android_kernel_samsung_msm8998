@@ -14,7 +14,7 @@ make O=out mrproper
 echo
 echo "Issue Build Commands"
 echo
-export CROSS_COMPILE=./scripts/toolchain/gcc-cfp/gcc-cfp-single/aarch64-linux-android-4.9/bin/aarch64-linux-android-
+export CROSS_COMPILE="$HOME"/Android-dev/toolchains/aosp-gcc/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 
 echo
 echo "Set DEFCONFIG"
