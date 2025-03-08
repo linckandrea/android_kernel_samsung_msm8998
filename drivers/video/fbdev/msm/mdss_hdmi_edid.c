@@ -181,13 +181,10 @@ struct hdmi_edid_ctrl {
 	struct hdmi_edid_sink_caps sink_caps;
 	struct hdmi_edid_override_data override_data;
 	struct hdmi_edid_hdr_data hdr_data;
-<<<<<<< HEAD
+	struct hdmi_edid_colorimetry colorimetry;
 #if defined(CONFIG_SEC_DISPLAYPORT)
 	int audio_channel_info;
 #endif
-=======
-	struct hdmi_edid_colorimetry colorimetry;
->>>>>>> 893d12e4fa1d6f322d400435ad77149f991ffc75
 };
 
 #if defined(CONFIG_SEC_DISPLAYPORT)
@@ -2905,11 +2902,6 @@ bail:
 
 	edid_ctrl->cea_blks = num_of_cea_blocks;
 
-<<<<<<< HEAD
-#if defined(CONFIG_SEC_DISPLAYPORT) && defined(CONFIG_SEC_CHECK_RATIO)
-check_again:
-#endif
-=======
 	sink_caps_pclk_khz =
 		hdmi_edid_get_sink_caps_max_tmds_clk(edid_ctrl) / 1000;
 	max_pclk_khz = hdmi_edid_get_max_pclk(edid_ctrl);
@@ -2917,7 +2909,9 @@ check_again:
 		hdmi_edid_set_max_pclk_rate(edid_ctrl,
 			min(max_pclk_khz, sink_caps_pclk_khz));
 
->>>>>>> 893d12e4fa1d6f322d400435ad77149f991ffc75
+#if defined(CONFIG_SEC_DISPLAYPORT) && defined(CONFIG_SEC_CHECK_RATIO)
+check_again:
+#endif
 	hdmi_edid_get_display_mode(edid_ctrl);
 
 	if (edid_ctrl->keep_resv_timings)
