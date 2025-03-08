@@ -6534,140 +6534,6 @@ static struct snd_soc_ops msm_aux_pcm_be_ops = {
 	.shutdown = msm_aux_pcm_snd_shutdown,
 };
 
-<<<<<<< HEAD
-static int msm_tdm_snd_hw_params(struct snd_pcm_substream *substream,
-				     struct snd_pcm_hw_params *params)
-{
-	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
-	int ret = 0;
-	int channels, slot_width, slots;
-	unsigned int slot_mask;
-	unsigned int *slot_offset;
-	int offset_channels = 0;
-	int i;
-
-	pr_debug("%s: dai id = 0x%x\n", __func__, cpu_dai->id);
-
-	channels = params_channels(params);
-	switch (channels) {
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-		switch (params_format(params)) {
-		case SNDRV_PCM_FORMAT_S32_LE:
-		case SNDRV_PCM_FORMAT_S24_LE:
-		case SNDRV_PCM_FORMAT_S16_LE:
-		/*
-		 * up to 8 channels HW config should
-		 * use 32 bit slot width for max support of
-		 * stream bit width. (slot_width > bit_width)
-		 */
-			slot_width = 32;
-			break;
-		default:
-			pr_err("%s: invalid param format 0x%x\n",
-				__func__, params_format(params));
-			return -EINVAL;
-		}
-		slots = 8;
-		slot_mask = tdm_param_set_slot_mask(slots);
-		if (!slot_mask) {
-			pr_err("%s: invalid slot_mask 0x%x\n",
-				__func__, slot_mask);
-			return -EINVAL;
-		}
-		break;
-	default:
-		pr_err("%s: invalid param channels %d\n",
-			__func__, channels);
-		return -EINVAL;
-	}
-	/* currently only supporting TDM_RX_0 and TDM_TX_0 */
-	switch (cpu_dai->id) {
-	case AFE_PORT_ID_PRIMARY_TDM_RX:
-	case AFE_PORT_ID_SECONDARY_TDM_RX:
-	case AFE_PORT_ID_TERTIARY_TDM_RX:
-	case AFE_PORT_ID_QUATERNARY_TDM_RX:
-	case AFE_PORT_ID_PRIMARY_TDM_TX:
-	case AFE_PORT_ID_SECONDARY_TDM_TX:
-	case AFE_PORT_ID_TERTIARY_TDM_TX:
-	case AFE_PORT_ID_QUATERNARY_TDM_TX:
-		slot_offset = tdm_slot_offset[TDM_0];
-		break;
-	default:
-		pr_err("%s: dai id 0x%x not supported\n",
-			__func__, cpu_dai->id);
-		return -EINVAL;
-	}
-
-	slots = 4; // for 4 Ch support 
-	slot_mask = 15; /*bits 0, 1, 2, 3 set for the first 8 slots*/
-	slot_width = 16; // 16 bit
-
-	for (i = 0; i < TDM_SLOT_OFFSET_MAX; i++) {
-		if (slot_offset[i] != AFE_SLOT_MAPPING_OFFSET_INVALID)
-			offset_channels++;
-		else
-			break;
-	}
-
-	if (offset_channels == 0) {
-		pr_err("%s: slot offset not supported, offset_channels %d\n",
-			__func__, offset_channels);
-		return -EINVAL;
-	}
-
-	if (channels > offset_channels) {
-		pr_err("%s: channels %d exceed offset_channels %d\n",
-			__func__, channels, offset_channels);
-		return -EINVAL;
-	}
-
-	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-		ret = snd_soc_dai_set_tdm_slot(cpu_dai, 0, slot_mask,
-					       slots, slot_width);
-		if (ret < 0) {
-			pr_err("%s: failed to set tdm slot, err:%d\n",
-				__func__, ret);
-			goto end;
-		}
-
-		ret = snd_soc_dai_set_channel_map(cpu_dai, 0, NULL,
-						  channels, slot_offset);
-		if (ret < 0) {
-			pr_err("%s: failed to set channel map, err:%d\n",
-				__func__, ret);
-			goto end;
-		}
-	} else {
-		ret = snd_soc_dai_set_tdm_slot(cpu_dai, slot_mask, 0,
-					       slots, slot_width);
-		if (ret < 0) {
-			pr_err("%s: failed to set tdm slot, err:%d\n",
-				__func__, ret);
-			goto end;
-		}
-
-		ret = snd_soc_dai_set_channel_map(cpu_dai, channels,
-						  slot_offset, 0, NULL);
-		if (ret < 0) {
-			pr_err("%s: failed to set channel map, err:%d\n",
-				__func__, ret);
-			goto end;
-		}
-	}
-end:
-	return ret;
-}
-
-=======
->>>>>>> aff00e9e3537f3de4b718388ff73161fb72addb8
 static struct snd_soc_ops msm_be_ops = {
 	.hw_params = msm_snd_hw_params,
 };
@@ -6682,11 +6548,6 @@ static struct snd_soc_ops msm_slimbus_2_be_ops = {
 
 static struct snd_soc_ops msm_wcn_ops = {
 	.hw_params = msm_wcn_hw_params,
-};
-
-<<<<<<< HEAD
-static struct snd_soc_ops msm_tdm_be_ops = {
-	.hw_params = msm_tdm_snd_hw_params
 };
 
 #if defined(CONFIG_SND_SOC_TFA9896)
@@ -6707,8 +6568,6 @@ static struct snd_soc_dai_link_component amp_tert_tdm[] = {
 };
 #endif
 
-=======
->>>>>>> aff00e9e3537f3de4b718388ff73161fb72addb8
 /* Digital audio interface glue - connects codec <---> CPU */
 static struct snd_soc_dai_link msm_common_dai_links[] = {
 	/* FrontEnd DAI Links */
