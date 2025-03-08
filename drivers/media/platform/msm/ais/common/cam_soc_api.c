@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
+>>>>>>> aff00e9e3537f3de4b718388ff73161fb72addb8
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -205,7 +209,7 @@ int msm_camera_get_clk_info(struct platform_device *pdev,
 {
 	int rc = 0;
 
-	if (!pdev || !&pdev->dev || !clk_info || !clk_ptr || !num_clk)
+	if (!pdev || !clk_info || !clk_ptr || !num_clk)
 		return -EINVAL;
 
 	rc = msm_camera_get_clk_info_internal(&pdev->dev,
