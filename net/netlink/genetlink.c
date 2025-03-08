@@ -1007,6 +1007,7 @@ static struct genl_multicast_group genl_ctrl_groups[] = {
 	{ .name = "notify", },
 };
 
+<<<<<<< HEAD
 static int genl_bind(struct net *net, int group)
 {
 	int i, err = 0;
@@ -1057,13 +1058,13 @@ static void genl_unbind(struct net *net, int group)
 	up_read(&cb_lock);
 }
 
+=======
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 static int __net_init genl_pernet_init(struct net *net)
 {
 	struct netlink_kernel_cfg cfg = {
 		.input		= genl_rcv,
 		.flags		= NL_CFG_F_NONROOT_RECV,
-		.bind		= genl_bind,
-		.unbind		= genl_unbind,
 	};
 
 	/* we'll bump the group number right afterwards */

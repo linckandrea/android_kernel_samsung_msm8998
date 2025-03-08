@@ -14,7 +14,13 @@
 # Based on the ia64 boot/Makefile.
 #
 
+<<<<<<< HEAD
 targets := Image Image.gz
+=======
+include $(srctree)/arch/arm64/boot/dts/Makefile
+
+targets := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 DTB_NAMES := $(subst $\",,$(CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE_NAMES))
 ifneq ($(DTB_NAMES),)

@@ -9,7 +9,6 @@
 
 #include <linux/fs.h>
 #include <linux/slab.h>
-#include <linux/cred.h>
 #include <linux/xattr.h>
 #include "overlayfs.h"
 
@@ -92,7 +91,6 @@ int ovl_permission(struct inode *inode, int mask)
 	struct ovl_entry *oe;
 	struct dentry *alias = NULL;
 	struct inode *realinode;
-	const struct cred *old_cred;
 	struct dentry *realdentry;
 	bool is_upper;
 	int err;
@@ -145,18 +143,12 @@ int ovl_permission(struct inode *inode, int mask)
 			goto out_dput;
 	}
 
-	/*
-	 * Check overlay inode with the creds of task and underlying inode
-	 * with creds of mounter
-	 */
-	err = generic_permission(inode, mask);
-	if (err)
-		goto out_dput;
-
-	old_cred = ovl_override_creds(inode->i_sb);
 	err = __inode_permission(realinode, mask);
+<<<<<<< HEAD
 	ovl_revert_creds(old_cred);
 
+=======
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 out_dput:
 	dput(alias);
 	return err;

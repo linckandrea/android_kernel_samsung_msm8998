@@ -186,7 +186,11 @@ static inline void update_saved_ttbr0(struct task_struct *tsk,
 	else
 		ttbr = virt_to_phys(mm->pgd) | ASID(mm) << 48;
 
+<<<<<<< HEAD
 	WRITE_ONCE(task_thread_info(tsk)->ttbr0, ttbr);
+=======
+	task_thread_info(tsk)->ttbr0 = ttbr;
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 }
 #else
 static inline void update_saved_ttbr0(struct task_struct *tsk,

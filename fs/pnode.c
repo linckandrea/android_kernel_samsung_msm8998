@@ -301,15 +301,17 @@ static int propagate_one(struct mount *m)
 	rkp_reset_mnt_flags(child->mnt,MNT_LOCKED);
 #else
 	child->mnt.mnt_flags &= ~MNT_LOCKED;
+<<<<<<< HEAD
 #endif
+=======
+	read_seqlock_excl(&mount_lock);
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	mnt_set_mountpoint(m, mp, child);
+	if (m->mnt_master != dest_master)
+		SET_MNT_MARK(m->mnt_master);
+	read_sequnlock_excl(&mount_lock);
 	last_dest = m;
 	last_source = child;
-	if (m->mnt_master != dest_master) {
-		read_seqlock_excl(&mount_lock);
-		SET_MNT_MARK(m->mnt_master);
-		read_sequnlock_excl(&mount_lock);
-	}
 	hlist_add_head(&child->mnt_hash, list);
 	return count_mounts(m->mnt_ns, child);
 }
@@ -692,9 +694,12 @@ void propagate_remount(struct mount *mnt)
 {
 	struct mount *parent = mnt->mnt_parent;
 	struct mount *p = mnt, *m;
+<<<<<<< HEAD
 #ifdef CONFIG_RKP_NS_PROT
 	struct super_block *sb = mnt->mnt->mnt_sb;
 #else
+=======
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	struct super_block *sb = mnt->mnt.mnt_sb;
 #endif
 
@@ -702,6 +707,7 @@ void propagate_remount(struct mount *mnt)
 		return;
 	for (p = propagation_next(parent, parent); p;
 				p = propagation_next(p, parent)) {
+<<<<<<< HEAD
 #ifdef CONFIG_RKP_NS_PROT
 		m = __lookup_mnt(p->mnt, mnt->mnt_mountpoint);
 		if (m)
@@ -711,6 +717,11 @@ void propagate_remount(struct mount *mnt)
 		if (m)
 			sb->s_op->copy_mnt_data(m->mnt.data, mnt->mnt.data);
 #endif
+=======
+		m = __lookup_mnt(&p->mnt, mnt->mnt_mountpoint);
+		if (m)
+			sb->s_op->copy_mnt_data(m->mnt.data, mnt->mnt.data);
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	}
 }
 

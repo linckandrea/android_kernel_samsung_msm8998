@@ -365,8 +365,13 @@ static int ashmem_vmfile_mmap(struct file *file, struct vm_area_struct *vma)
 
 static unsigned long
 ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
+<<<<<<< HEAD
 			unsigned long len, unsigned long pgoff,
 			unsigned long flags)
+=======
+				unsigned long len, unsigned long pgoff,
+				unsigned long flags)
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 {
 	return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
 }
@@ -424,7 +429,11 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
 			vmfile_fops = *vmfile->f_op;
 			vmfile_fops.mmap = ashmem_vmfile_mmap;
 			vmfile_fops.get_unmapped_area =
+<<<<<<< HEAD
 				ashmem_vmfile_get_unmapped_area;
+=======
+					ashmem_vmfile_get_unmapped_area;
+>>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 		}
 		vmfile->f_op = &vmfile_fops;
 	}
