@@ -2156,11 +2156,7 @@ static int check_vma(unsigned long hostptr, u64 size)
 	return true;
 }
 
-<<<<<<< HEAD
 static int memdesc_sg_virt(struct kgsl_memdesc *memdesc, unsigned long useraddr)
-=======
-static int memdesc_sg_virt(struct kgsl_memdesc *memdesc)
->>>>>>> 5325fdd62a55273df91abb561c8b9ea71d12bbfc
 {
 	int ret = 0;
 	long npages = 0, i;
@@ -2182,26 +2178,14 @@ static int memdesc_sg_virt(struct kgsl_memdesc *memdesc)
 	}
 
 	down_read(&current->mm->mmap_sem);
-<<<<<<< HEAD
 	if (!check_vma(useraddr, memdesc->size)) {
-		up_read(&current->mm->mmap_sem);
-		ret = -EFAULT;
-		goto out;
-	}
-
-	npages = get_user_pages(current, current->mm, useraddr,
-					sglen, write ? FOLL_WRITE : 0,
-					pages, NULL);
-=======
-	if (!check_vma(memdesc->useraddr, memdesc->size)) {
 		up_read(&current->mm->mmap_sem);
 		ret = ~EFAULT;
 		goto out;
 	}
 
-	npages = get_user_pages(current, current->mm, memdesc->useraddr,
+	npages = get_user_pages(current, current->mm, useraddr,
 				sglen, write ? FOLL_WRITE : 0, pages, NULL);
->>>>>>> 5325fdd62a55273df91abb561c8b9ea71d12bbfc
 	up_read(&current->mm->mmap_sem);
 
 	ret = (npages < 0) ? (int)npages : 0;
@@ -2255,16 +2239,12 @@ static int kgsl_setup_anon_useraddr(struct kgsl_pagetable *pagetable,
 		entry->memdesc.gpuaddr = (uint64_t) hostptr;
 	}
 
-<<<<<<< HEAD
-	ret =  memdesc_sg_virt(&entry->memdesc, hostptr);
+	ret = memdesc_sg_virt(&entry->memdesc, hostptr);
 
 	if (ret && kgsl_memdesc_use_cpu_map(&entry->memdesc))
 		kgsl_mmu_put_gpuaddr(&entry->memdesc);
 
 	return ret;
-=======
-	return memdesc_sg_virt(&entry->memdesc);
->>>>>>> 5325fdd62a55273df91abb561c8b9ea71d12bbfc
 }
 
 static int match_file(const void *p, struct file *file, unsigned int fd)
