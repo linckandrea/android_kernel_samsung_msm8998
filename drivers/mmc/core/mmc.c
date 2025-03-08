@@ -629,7 +629,6 @@ static int mmc_decode_ext_csd(struct mmc_card *card, u8 *ext_csd)
 		card->ext_csd.data_sector_size = 512;
 	}
 
-<<<<<<< HEAD
 	if (card->ext_csd.rev >= 7) {
 		/* Enhance Strobe is supported since v5.1 which rev should be
 		 * 8 but some eMMC devices can support it with rev 7. So handle
@@ -669,7 +668,6 @@ static int mmc_decode_ext_csd(struct mmc_card *card, u8 *ext_csd)
 		card->ext_csd.barrier_support = 0;
 		card->ext_csd.cache_flush_policy = 0;
 	}
-=======
 	/*
 	 * GENERIC_CMD6_TIME is to be used "unless a specific timeout is defined
 	 * when accessing a specific field", so use it here if there is no
@@ -680,7 +678,6 @@ static int mmc_decode_ext_csd(struct mmc_card *card, u8 *ext_csd)
 	/* Some eMMC set the value too low so set a minimum */
 	if (card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
 		card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 	/* eMMC v5 or later */
 	if (card->ext_csd.rev >= 7) {
