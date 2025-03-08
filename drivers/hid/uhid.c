@@ -24,12 +24,9 @@
 #include <linux/spinlock.h>
 #include <linux/uhid.h>
 #include <linux/wait.h>
-<<<<<<< HEAD
 #include <linux/fb.h>
-=======
 #include <linux/uaccess.h>
 #include <linux/eventpoll.h>
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 #define UHID_NAME	"uhid"
 #define UHID_BUFSIZE	32

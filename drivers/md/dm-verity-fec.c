@@ -457,11 +457,8 @@ int verity_fec_decode(struct dm_verity *v, struct dm_verity_io *io,
 
 	fio->level++;
 
-<<<<<<< HEAD
-=======
 	if (type == DM_VERITY_BLOCK_TYPE_METADATA)
 		block = block - v->hash_start + v->data_blocks;
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 	/*
 	 * For RS(M, N), the continuous FEC data is divided into blocks of N

@@ -1183,8 +1183,6 @@ static int vgacon_resize(struct vc_data *c, unsigned int width,
 	if ((width << 1) * height > vga_vram_size)
 		return -EINVAL;
 
-<<<<<<< HEAD
-=======
 	if (user) {
 		/*
 		 * Ho ho!  Someone (svgatextmode, eh?) may have reprogrammed
@@ -1195,7 +1193,6 @@ static int vgacon_resize(struct vc_data *c, unsigned int width,
 		vga_default_font_height = c->vc_cell_height;
 		return 0;
 	}
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	if (width % 2 || width > screen_info.orig_video_cols ||
 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
 	    c->vc_cell_height)

@@ -1064,11 +1064,6 @@ mapped:
 	if (!bit)
 		return;
 
-<<<<<<< HEAD
-	if (device->driver->input_mapped && device->driver->input_mapped(device,
-				hidinput, field, usage, &bit, &max) < 0)
-		goto ignore;
-=======
 	if (device->driver->input_mapped &&
 	    device->driver->input_mapped(device, hidinput, field, usage,
 					 &bit, &max) < 0) {
@@ -1078,7 +1073,6 @@ mapped:
 		 */
 		return;
 	}
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 	set_bit(usage->type, input->evbit);
 

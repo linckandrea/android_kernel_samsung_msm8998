@@ -21,9 +21,8 @@
 
 #include "zcomp.h"
 
-<<<<<<< HEAD
 #define SECTOR_SHIFT		9
-=======
+
 /*-- Configurable parameters */
 
 /*
@@ -40,7 +39,6 @@ static const size_t max_zpage_size = PAGE_SIZE / 4 * 3;
 
 /*-- End of configurable params */
 
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 #define SECTORS_PER_PAGE_SHIFT	(PAGE_SHIFT - SECTOR_SHIFT)
 #define SECTORS_PER_PAGE	(1 << SECTORS_PER_PAGE_SHIFT)
 #define ZRAM_LOGICAL_BLOCK_SHIFT 12
