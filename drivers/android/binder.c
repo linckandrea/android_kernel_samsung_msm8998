@@ -3077,8 +3077,6 @@ static void binder_transaction(struct binder_proc *proc,
 			goto err_dead_binder;
 		}
 		e->to_node = target_node->debug_id;
-<<<<<<< HEAD
-
 #ifdef CONFIG_SAMSUNG_FREECESS
 		if (target_proc
 			&& (target_proc->tsk->cred->euid.val > 10000)
@@ -3086,14 +3084,12 @@ static void binder_transaction(struct binder_proc *proc,
 			binder_report(proc->tsk, target_proc->tsk, tr->flags & TF_ONE_WAY);
 		}
 #endif
-=======
 		if (WARN_ON(proc == target_proc)) {
 			return_error = BR_FAILED_REPLY;
 			return_error_param = -EINVAL;
 			return_error_line = __LINE__;
 			goto err_invalid_target_handle;
 		}
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 		if (security_binder_transaction(proc->cred,
 						target_proc->cred) < 0) {
 			return_error = BR_FAILED_REPLY;
