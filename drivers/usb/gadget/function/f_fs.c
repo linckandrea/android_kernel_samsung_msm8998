@@ -1128,7 +1128,6 @@ ffs_epfile_open(struct inode *inode, struct file *file)
 	file->private_data = epfile;
 	ffs_data_opened(epfile->ffs);
 
-<<<<<<< HEAD
 	smp_mb__before_atomic();
 	atomic_set(&epfile->error, 0);
 	first_read_done = false;
@@ -1136,10 +1135,7 @@ ffs_epfile_open(struct inode *inode, struct file *file)
 	ffs_log("exit:state %d setup_state %d flag %lu", epfile->ffs->state,
 		epfile->ffs->setup_state, epfile->ffs->flags);
 
-	return 0;
-=======
 	return stream_open(inode, file);
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 }
 
 static int ffs_aio_cancel(struct kiocb *kiocb)
@@ -1151,14 +1147,10 @@ static int ffs_aio_cancel(struct kiocb *kiocb)
 
 	ENTER();
 
-<<<<<<< HEAD
 	ffs_log("enter:state %d setup_state %d flag %lu", epfile->ffs->state,
 		epfile->ffs->setup_state, epfile->ffs->flags);
 
-	spin_lock_irq(&epfile->ffs->eps_lock);
-=======
 	spin_lock_irqsave(&epfile->ffs->eps_lock, flags);
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 	if (likely(io_data && io_data->ep && io_data->req))
 		value = usb_ep_dequeue(io_data->ep, io_data->req);
@@ -1907,14 +1899,12 @@ static void ffs_data_reset(struct ffs_data *ffs)
 	ffs->setup_state = FFS_NO_SETUP;
 	ffs->flags = 0;
 
-<<<<<<< HEAD
-	ffs_log("exit: state %d setup_state %d flag %lu", ffs->state,
-		ffs->setup_state, ffs->flags);
-=======
 	ffs->ms_os_descs_ext_prop_count = 0;
 	ffs->ms_os_descs_ext_prop_name_len = 0;
 	ffs->ms_os_descs_ext_prop_data_len = 0;
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
+
+	ffs_log("exit: state %d setup_state %d flag %lu", ffs->state,
+		ffs->setup_state, ffs->flags);
 }
 
 

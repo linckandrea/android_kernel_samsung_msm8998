@@ -939,16 +939,12 @@ static int set_config(struct usb_composite_dev *cdev,
 	}
 
 done:
-<<<<<<< HEAD
-	usb_gadget_vbus_draw(gadget, USB_VBUS_DRAW(gadget->speed));
-=======
-	if (power <= USB_SELF_POWER_VBUS_MAX_DRAW)
+	if (USB_VBUS_DRAW(gadget->speed) <= USB_SELF_POWER_VBUS_MAX_DRAW)
 		usb_gadget_set_selfpowered(gadget);
 	else
 		usb_gadget_clear_selfpowered(gadget);
 
-	usb_gadget_vbus_draw(gadget, power);
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
+	usb_gadget_vbus_draw(gadget, USB_VBUS_DRAW(gadget->speed));
 	if (result >= 0 && cdev->delayed_status)
 		result = USB_GADGET_DELAYED_STATUS;
 	return result;

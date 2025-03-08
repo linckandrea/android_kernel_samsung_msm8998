@@ -176,12 +176,7 @@ struct gadget_config_name {
 	struct list_head list;
 };
 
-<<<<<<< HEAD
-#define MAX_USB_STRING_LEN	126
 #define MAX_USB_STRING_WITH_NULL_LEN	(MAX_USB_STRING_LEN+1)
-=======
-#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 static int usb_string_copy(const char *s, char **s_copy)
 {
@@ -189,29 +184,17 @@ static int usb_string_copy(const char *s, char **s_copy)
 	char *str;
 	char *copy = *s_copy;
 	ret = strlen(s);
-<<<<<<< HEAD
-	if (ret > MAX_USB_STRING_LEN)
-=======
 	if (ret > USB_MAX_STRING_LEN)
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 		return -EOVERFLOW;
 
 	if (copy) {
 		str = copy;
 	} else {
-<<<<<<< HEAD
-		str = kmalloc(MAX_USB_STRING_WITH_NULL_LEN, GFP_KERNEL);
-		if (!str)
-			return -ENOMEM;
-	}
-	strncpy(str, s, MAX_USB_STRING_WITH_NULL_LEN);
-=======
 		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
 		if (!str)
 			return -ENOMEM;
 	}
 	strcpy(str, s);
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	if (str[ret - 1] == '\n')
 		str[ret - 1] = '\0';
 	*s_copy = str;

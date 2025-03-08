@@ -664,13 +664,9 @@ static ssize_t acc_read(struct file *fp, char __user *buf,
 {
 	struct acc_dev *dev = fp->private_data;
 	struct usb_request *req;
-<<<<<<< HEAD
-	ssize_t r = count, xfer, len;
-=======
 	ssize_t r = count;
 	ssize_t data_length;
 	unsigned xfer;
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	int ret = 0;
 
 	pr_debug("acc_read(%zu)\n", count);
@@ -691,18 +687,7 @@ static ssize_t acc_read(struct file *fp, char __user *buf,
 		goto done;
 	}
 
-<<<<<<< HEAD
 	len = ALIGN(count, dev->ep_out->maxpacket);
-=======
-	/*
-	 * Calculate the data length by considering termination character.
-	 * Then compansite the difference of rounding up to
-	 * integer multiple of maxpacket size.
-	 */
-	data_length = count;
-	data_length += dev->ep_out->maxpacket - 1;
-	data_length -= data_length % dev->ep_out->maxpacket;
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 	if (dev->rx_done) {
 		// last req cancelled. try to get it.
@@ -713,11 +698,7 @@ static ssize_t acc_read(struct file *fp, char __user *buf,
 requeue_req:
 	/* queue a request */
 	req = dev->rx_req[0];
-<<<<<<< HEAD
 	req->length = len;
-=======
-	req->length = data_length;
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	dev->rx_done = 0;
 	ret = usb_ep_queue(dev->ep_out, req, GFP_KERNEL);
 	if (ret < 0) {
@@ -872,16 +853,6 @@ static long acc_ioctl(struct file *fp, unsigned code, unsigned long value)
 
 static int acc_open(struct inode *ip, struct file *fp)
 {
-<<<<<<< HEAD
-	if (atomic_xchg(&_acc_dev->open_excl, 1))
-	{
-		printk(KERN_INFO "usb: acc_open_EBUSY\n");
-		return -EBUSY;
-	}
-	printk(KERN_INFO "usb: acc_open\n");
-	_acc_dev->disconnected = 0;
-	fp->private_data = _acc_dev;
-=======
 	struct acc_dev *dev = get_acc_dev();
 
 	if (!dev)
@@ -894,7 +865,6 @@ static int acc_open(struct inode *ip, struct file *fp)
 
 	dev->disconnected = 0;
 	fp->private_data = dev;
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	return 0;
 }
 
@@ -985,15 +955,6 @@ int acc_ctrlrequest(struct usb_composite_dev *cdev,
 	 */
 	if (!dev)
 		return -ENODEV;
-<<<<<<< HEAD
-/*
- *	printk(KERN_INFO "acc_ctrlrequest "
- *			"%02x.%02x v%04x i%04x l%u\n",
- *			b_requestType, b_request,
- *			w_value, w_index, w_length);
- */
-=======
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 
 	if (b_requestType == (USB_DIR_OUT | USB_TYPE_VENDOR)) {
 		if (b_request == ACCESSORY_START) {
@@ -1383,26 +1344,17 @@ static int acc_setup(void)
 	INIT_DELAYED_WORK(&dev->start_work, acc_start_work);
 	INIT_WORK(&dev->hid_work, acc_hid_work);
 
-<<<<<<< HEAD
-=======
 	dev->ref = ref;
 	if (cmpxchg_relaxed(&ref->acc_dev, NULL, dev)) {
 		ret = -EBUSY;
 		goto err_free_dev;
 	}
 
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	ret = misc_register(&acc_device);
 	if (ret)
 		goto err_zap_ptr;
 
-<<<<<<< HEAD
-	/* _acc_dev must be set before calling usb_gadget_register_driver */
-	_acc_dev = dev;
-
-=======
 	kref_init(&ref->kref);
->>>>>>> 875c0cc8115381f702b12d41de293807f47cdac9
 	return 0;
 
 err_zap_ptr:
