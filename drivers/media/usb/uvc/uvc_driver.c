@@ -1415,11 +1415,7 @@ static int uvc_scan_chain_forward(struct uvc_video_chain *chain,
 			uvc_trace(UVC_TRACE_DESCR, "Found reference to "
 				"entity %d already in chain.\n", forward->id);
 			return -EINVAL;
-<<<<<<< HEAD
-		}		
-=======
 		}
->>>>>>> 69948079945ae587da82ba18dbed50df627d757a
 
 		switch (UVC_ENTITY_TYPE(forward)) {
 		case UVC_VC_EXTENSION_UNIT:

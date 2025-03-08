@@ -14544,7 +14544,6 @@ static const struct snd_kcontrol_new tx_voicemmode1_mixer_controls[] = {
 	SOC_DOUBLE_EXT("QUAT_TDM_TX_0_MMode1", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0, MSM_FRONTEND_DAI_VOICEMMODE1,
 	1, 0, msm_routing_get_voice_mixer, msm_routing_put_voice_mixer),
-<<<<<<< HEAD
 	SOC_DOUBLE_EXT("QUAT_TDM_TX_1_MMode1", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_1,
 	MSM_FRONTEND_DAI_VOICEMMODE1, 1, 0, msm_routing_get_voice_mixer,
@@ -14557,14 +14556,12 @@ static const struct snd_kcontrol_new tx_voicemmode1_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_TX_3,
 	MSM_FRONTEND_DAI_VOICEMMODE1, 1, 0, msm_routing_get_voice_mixer,
 	msm_routing_put_voice_mixer),
-=======
 	SOC_DOUBLE_EXT("PROXY_TX_MMode1", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_PROXY_TX, MSM_FRONTEND_DAI_VOICEMMODE1,
 	1, 0, msm_routing_get_voice_mixer, msm_routing_put_voice_mixer),
 	SOC_DOUBLE_EXT("PROXY_TX_MMode2", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_PROXY_TX, MSM_FRONTEND_DAI_VOICEMMODE2,
 	1, 0, msm_routing_get_voice_mixer, msm_routing_put_voice_mixer),
->>>>>>> 69948079945ae587da82ba18dbed50df627d757a
 };
 
 static const struct snd_kcontrol_new tx_voicemmode2_mixer_controls[] = {
@@ -22033,7 +22030,6 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"QUAT_TDM_RX_2_Voice Mixer", "VoiceMMode2", "VOICEMMODE2_DL"},
 	{"QUAT_TDM_RX_2", NULL, "QUAT_TDM_RX_2_Voice Mixer"},
 
-<<<<<<< HEAD
 	{"QUAT_TDM_RX_3_Voice Mixer", "CSVoice", "CS-VOICE_DL1"},
 	{"QUAT_TDM_RX_3_Voice Mixer", "Voice2", "VOICE2_DL"},
 	{"QUAT_TDM_RX_3_Voice Mixer", "Voip", "VOIP_DL"},
@@ -22047,13 +22043,11 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"QUAT_TDM_RX_3_Voice Mixer", "VoiceMMode1", "VOICEMMODE1_DL"},
 	{"QUAT_TDM_RX_3_Voice Mixer", "VoiceMMode2", "VOICEMMODE2_DL"},
 	{"QUAT_TDM_RX_3", NULL, "QUAT_TDM_RX_3_Voice Mixer"},
-=======
 	{"PROXY_RX_Voice Mixer", "VoiceMMode1", "VOICEMMODE1_DL"},
 	{"PROXY_RX", NULL, "PROXY_RX_Voice Mixer"},
 
 	{"PROXY_RX_Voice Mixer", "VoiceMMode2", "VOICEMMODE2_DL"},
 	{"PROXY_RX", NULL, "PROXY_RX_Voice Mixer"},
->>>>>>> 69948079945ae587da82ba18dbed50df627d757a
 
 	{"VOC_EXT_EC MUX", "PRI_MI2S_TX" , "PRI_MI2S_TX"},
 	{"VOC_EXT_EC MUX", "SEC_MI2S_TX" , "SEC_MI2S_TX"},
@@ -22309,7 +22303,6 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"VoiceMMode1_Tx Mixer", "TERT_AUX_PCM_TX_MMode1", "TERT_AUX_PCM_TX"},
 	{"VoiceMMode1_Tx Mixer", "QUAT_AUX_PCM_TX_MMode1", "QUAT_AUX_PCM_TX"},
 	{"VoiceMMode1_Tx Mixer", "QUAT_TDM_TX_0_MMode1", "QUAT_TDM_TX_0"},
-<<<<<<< HEAD
 	{"VoiceMMode1_Tx Mixer", "PRI_TDM_TX_0_MMode1", "PRI_TDM_TX_0"},
 	{"VoiceMMode1_Tx Mixer", "PRI_TDM_TX_1_MMode1", "PRI_TDM_TX_1"},
 	{"VoiceMMode1_Tx Mixer", "PRI_TDM_TX_2_MMode1", "PRI_TDM_TX_2"},
@@ -22326,9 +22319,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"VoiceMMode1_Tx Mixer", "QUAT_TDM_TX_1_MMode1", "QUAT_TDM_TX_1"},
 	{"VoiceMMode1_Tx Mixer", "QUAT_TDM_TX_2_MMode1", "QUAT_TDM_TX_2"},
 	{"VoiceMMode1_Tx Mixer", "QUAT_TDM_TX_3_MMode1", "QUAT_TDM_TX_3"},
-=======
 	{"VoiceMMode1_Tx Mixer", "PROXY_TX_MMode1", "PROXY_TX"},
->>>>>>> 69948079945ae587da82ba18dbed50df627d757a
 	{"VOICEMMODE1_UL", NULL, "VoiceMMode1_Tx Mixer"},
 
 	{"VoiceMMode2_Tx Mixer", "PRI_TX_MMode2", "PRI_I2S_TX"},
@@ -22346,7 +22337,6 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"VoiceMMode2_Tx Mixer", "SEC_AUX_PCM_TX_MMode2", "SEC_AUX_PCM_TX"},
 	{"VoiceMMode2_Tx Mixer", "TERT_AUX_PCM_TX_MMode2", "TERT_AUX_PCM_TX"},
 	{"VoiceMMode2_Tx Mixer", "QUAT_AUX_PCM_TX_MMode2", "QUAT_AUX_PCM_TX"},
-<<<<<<< HEAD
 	{"VoiceMMode2_Tx Mixer", "PRI_TDM_TX_0_MMode2", "PRI_TDM_TX_0"},
 	{"VoiceMMode2_Tx Mixer", "PRI_TDM_TX_1_MMode2", "PRI_TDM_TX_1"},
 	{"VoiceMMode2_Tx Mixer", "PRI_TDM_TX_2_MMode2", "PRI_TDM_TX_2"},
@@ -22363,9 +22353,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"VoiceMMode2_Tx Mixer", "QUAT_TDM_TX_1_MMode2", "QUAT_TDM_TX_1"},
 	{"VoiceMMode2_Tx Mixer", "QUAT_TDM_TX_2_MMode2", "QUAT_TDM_TX_2"},
 	{"VoiceMMode2_Tx Mixer", "QUAT_TDM_TX_3_MMode2", "QUAT_TDM_TX_3"},
-=======
 	{"VoiceMMode2_Tx Mixer", "PROXY_TX_MMode2", "PROXY_TX"},
->>>>>>> 69948079945ae587da82ba18dbed50df627d757a
 	{"VOICEMMODE2_UL", NULL, "VoiceMMode2_Tx Mixer"},
 
 	{"Voip_Tx Mixer", "PRI_TX_Voip", "PRI_I2S_TX"},
