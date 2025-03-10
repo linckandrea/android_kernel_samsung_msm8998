@@ -2084,13 +2084,6 @@ static void hdcp_lib_clean(struct hdcp_lib_handle *handle)
 
 	handle->authenticated = false;
 
-<<<<<<< HEAD
-=======
-	/* AV mute the sink first to avoid artifacts */
-	if (handle->client_ops->mute_sink)
-		handle->client_ops->mute_sink(handle->client_ctx);
-
->>>>>>> 893d12e4fa1d6f322d400435ad77149f991ffc75
 	hdcp_lib_txmtr_deinit(handle);
 	if (!handle->legacy_app)
 		hdcp_lib_session_deinit(handle);
@@ -2422,25 +2415,15 @@ int hdcp1_set_keys(uint32_t *aksv_msb, uint32_t *aksv_lsb)
 
 	if (rc < 0) {
 		pr_err("qseecom cmd failed err=%d\n", rc);
-<<<<<<< HEAD
-		mutex_unlock(&hdcp1_ta_cmd_lock);
-		return -ENOKEY;
-=======
 		rc = -ENOKEY;
 		goto end;
->>>>>>> 893d12e4fa1d6f322d400435ad77149f991ffc75
 	}
 
 	rc = key_set_rsp->ret;
 	if (rc) {
 		pr_err("set key cmd failed, rsp=%d\n", key_set_rsp->ret);
-<<<<<<< HEAD
-		mutex_unlock(&hdcp1_ta_cmd_lock);
-		return -ENOKEY;
-=======
 		rc = -ENOKEY;
 		goto end;
->>>>>>> 893d12e4fa1d6f322d400435ad77149f991ffc75
 	}
 
 	/* copy bytes into msb and lsb */
@@ -2453,14 +2436,9 @@ int hdcp1_set_keys(uint32_t *aksv_msb, uint32_t *aksv_lsb)
 	*aksv_lsb |= key_set_rsp->ksv[6] << 8;
 	*aksv_lsb |= key_set_rsp->ksv[7];
 
-<<<<<<< HEAD
-	mutex_unlock(&hdcp1_ta_cmd_lock);
-	return 0;
-=======
 end:
 	mutex_unlock(&hdcp1_ta_cmd_lock);
 	return rc;
->>>>>>> 893d12e4fa1d6f322d400435ad77149f991ffc75
 }
 
 int hdcp1_validate_receiver_ids(struct hdcp_srm_device_id_t *device_ids,

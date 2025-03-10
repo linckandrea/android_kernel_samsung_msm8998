@@ -28,8 +28,6 @@
 
 struct msm_vfe_cfg_cmd_list;
 
-<<<<<<< HEAD
-=======
 struct isp_kstate {
 	uint32_t kernel_sofid;
 	uint32_t drop_reconfig;
@@ -38,7 +36,6 @@ struct isp_kstate {
 	uint32_t dual_cam_drop;
 };
 
->>>>>>> 893d12e4fa1d6f322d400435ad77149f991ffc75
 enum ISP_START_PIXEL_PATTERN {
 	ISP_BAYER_RGRGRG,
 	ISP_BAYER_GRGRGR,

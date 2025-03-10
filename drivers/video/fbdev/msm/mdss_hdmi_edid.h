@@ -92,13 +92,10 @@ void hdmi_edid_config_override(void *input, bool enable,
 void hdmi_edid_set_max_pclk_rate(void *input, u32 max_pclk_khz);
 bool hdmi_edid_is_audio_supported(void *input);
 u32 hdmi_edid_get_sink_caps_max_tmds_clk(void *input);
-<<<<<<< HEAD
+u8 hdmi_edid_get_colorimetry(void *input);
 #if defined(CONFIG_SEC_DISPLAYPORT)
 int get_audio_ch(void *input);
 u32 secdp_get_max_pclk(void *input);
 #endif
-=======
-u8 hdmi_edid_get_colorimetry(void *input);
->>>>>>> 893d12e4fa1d6f322d400435ad77149f991ffc75
 
 #endif /* __HDMI_EDID_H__ */
